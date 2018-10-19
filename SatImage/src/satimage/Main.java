@@ -46,7 +46,7 @@ public class Main {
     public static void showImage(RGBImage img)
     {
         Frame frame = new Frame();
-        BufferedImage bI = img.getBufferedImage(32,16);
+        BufferedImage bI = img.getBufferedImage(16,32);
         frame.add(new ImagePanel(bI, 10, 10));
         frame.setSize(bI.getWidth(), bI.getHeight());
         frame.setVisible(true);

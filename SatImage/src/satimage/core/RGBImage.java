@@ -7,12 +7,11 @@ package satimage.core;
 
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Point;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.Hashtable;
-import java.util.Set;
 import javax.imageio.ImageIO;
 
 /**
@@ -22,87 +21,46 @@ import javax.imageio.ImageIO;
 public class RGBImage extends BufferedImage {
     
     private Dimension pixelSize;
-    private Hashtable<Point, Color> values;
-    
-    public RGBImage(int w, int h)
-    {
-        super(w,h, BufferedImage.TYPE_INT_RGB);
-        pixelSize = new Dimension(1,1);
-        values = new Hashtable<Point, Color>();
-    }
     
     public RGBImage(int w, int h, int pW, int pH)
     {
         super(w*pW,h*pH, BufferedImage.TYPE_INT_RGB);
         pixelSize = new Dimension(pW,pH);
-        values = new Hashtable<Point, Color>();
     }
     
-    public void addColor(int x, int y, Color color)
+    public RGBImage(int w, int h)
     {
-        values.put(new Point(x,y), color);
+        super(w,h, BufferedImage.TYPE_INT_RGB);
+        pixelSize = new Dimension(1,1);
     }
     
-    public void addRedAt(int x, int y)
+    public RGBImage clone()
     {
-        addColor(x, y, Color.RED);
-    }
-    
-    public void addBlueAt(int x, int y)
-    {
-        addColor(x, y, Color.BLUE);
-    }
-    
-    public void addWhiteAt(int x, int y)
-    {
-        addColor(x, y, Color.WHITE);
-    }
-    
-    public void addBlackAt(int x, int y)
-    {
-        addColor(x, y, Color.BLACK);
-    }
-    
-    
-    public void build()
-    {
-        if ((pixelSize.width>0) && (pixelSize.height>0))
+        RGBImage tmp = new RGBImage(getWidth(), getHeight());
+        tmp.pixelSize.width  = pixelSize.width;
+        tmp.pixelSize.height = pixelSize.height;
+        
+        for(int j=0 ; j<getHeight() ; j++)
         {
-            //COLORATION DES RECTANGLES
-            //Pour chaque clause on dessine chaque rectange de pixels
-            Set<Point> keys = values.keySet();
-            for(Point key : keys)
+            for(int i=0 ; i<getWidth() ; i++)
             {
-                drawRectangle(key.x*pixelSize.width, key.y*pixelSize.height, pixelSize.width, pixelSize.height, values.get(key));
+                tmp.setRGB(i,j, getRGB(i, j));
             }
         }
+        return tmp;
     }
     
-    private void drawRectangle(int x, int y, int w, int h, Color color)
+    public void draw(Color color, int x, int y)
     {
-        for(int j=0 ; j<h ; j++)
+        for(int j=0 ; j<pixelSize.height ; j++)
         {
-            for(int i=0 ; i<w ; i++)
+            for(int i=0 ; i<pixelSize.width ; i++)
             {
-                int x_ = x+i;
-                int y_ = y+j;
+                int x_ = (x*pixelSize.width)+i;
+                int y_ = (y*pixelSize.height)+j;
                 setRGB(x_, y_, color.getRGB());
             }
         }
-    }
-    
-    /**
-     * Permet d'obtenir une image avec les pixels zoomés
-     * @param pWidth  la largeur d'un pixel
-     * @param pHeight la hauteur d'un pixel
-     * @return 
-     */
-    public RGBImage getImageZoomed(int pWidth, int pHeight)
-    {
-        RGBImage img = new RGBImage(getWidth()*pWidth, getHeight()*pHeight, pWidth, pHeight);
-        img.values = new Hashtable(values);
-        img.build();
-        return img;
     }
     
     /**

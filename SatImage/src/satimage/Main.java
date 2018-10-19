@@ -17,23 +17,30 @@ import view.ImagePanel;
  */
 public class Main {
 
-    /**
-     * @param args the command line arguments
-     */
+    private static Frame frame = new Frame();
     public static void main(String[] args) 
     {
         DocumentReader documentReader = DocumentReader.get();
         //--------------------------
-        String dirImg = getAbsolutePath() + "\\src\\data\\img\\";
-        String dirCnf = getAbsolutePath() + "\\src\\data\\cnf\\";
+        String pathIMG = getAbsolutePath() + "\\src\\data\\img\\";
+        String pathCNF = getAbsolutePath() + "\\src\\data\\cnf\\";
         //--------------------------
-        CNFDocument doc = new CNFDocument(dirCnf, "test");
+        CNFDocument doc = new CNFDocument(pathCNF, "test");
         documentReader.read(doc);
         doc.print();
-        RGBImage img = doc.getRGBImage(16,32);
+        doc.drawImage(16, 32);
         //---------------------------
-        showImage(img);
-        //img.writeImage(dirImg, "TEST");
+        showImage(doc.getImage().clone());
+
+        doc.invertVariables(1, 2);
+        showImage(doc.getImage().clone());
+        
+        doc.invertClauses(0, 1);
+        showImage(doc.getImage().clone());
+        
+        doc.invertVariables(1, 2);
+        showImage(doc.getImage().clone());
+        //img.writeImage(dirImg, "TEST2");
     }
     
     public static String getAbsolutePath()
@@ -43,7 +50,6 @@ public class Main {
     
     public static void showImage(BufferedImage img)
     {
-        Frame frame = new Frame();
         frame.add(new ImagePanel(img, 10, 10));
         frame.setSize(img.getWidth(), img.getHeight()*2);
         frame.setVisible(true);

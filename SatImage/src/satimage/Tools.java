@@ -12,7 +12,6 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import javax.imageio.ImageIO;
-import satimage.core.RGBImage;
 
 /**
  *
@@ -55,22 +54,6 @@ public class Tools {
             }
             System.out.println();
         }
-    }
-    
-    /**
-     * Affiche les composentes d'une RGBImage
-     * @param img l'image à afficher
-     */
-    public void printA(RGBImage img)
-    {
-        int w = img.getWidth();
-        int h = img.getHeight();
-        System.out.println("R:");
-        printA(img.getR(), w,h);
-        System.out.println("G:");
-        printA(img.getG(), w,h);
-        System.out.println("B:");
-        printA(img.getB(), w,h);
     }
     
     /**

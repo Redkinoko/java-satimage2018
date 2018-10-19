@@ -18,18 +18,15 @@ public class ImagePanel extends javax.swing.JPanel {
 
     private Point offSet;
     private BufferedImage img;
-    private Tools tools;
     
     public ImagePanel(BufferedImage bimg) {
         initComponents();
-        tools = Tools.get();
         img = bimg;
         offSet = new Point(0,0);
     }
     
     public ImagePanel(BufferedImage bimg, int x, int y) {
         initComponents();
-        tools = Tools.get();
         img = bimg;
         offSet = new Point(x,y);
     }

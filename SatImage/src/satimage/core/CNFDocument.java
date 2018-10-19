@@ -105,9 +105,9 @@ public class CNFDocument extends Document {
         }
     }
     
-    public RGBImage getRGBImage()
+    public RGBImage getRGBImage(int pWidth, int pHeight)
     {
-        RGBImage img = new RGBImage(nbClauses, nbVariables);
+        RGBImage img = new RGBImage(nbClauses, nbVariables, pWidth, pHeight);
         for(int i=0 ; i<clauses.size() ; i++)
         {
             for(int j=0 ; j<clauses.get(i).size() ; j++)
@@ -116,17 +116,16 @@ public class CNFDocument extends Document {
                 int vabs = Math.abs(v)-1;
                 if(v < 0)//Si négatif en rouge
                 {
-                    img.setRedAt(i, vabs);
+                    img.addRedAt(i, vabs);
                 }
                 else//Si positif en bleu
                 {
-                    img.setBlueAt(i, vabs);
+                    img.addBlueAt(i, vabs);
                 }
 
             }
-            System.out.println();
         }
-        System.out.println();
+        img.build();
         return img;
     }
     

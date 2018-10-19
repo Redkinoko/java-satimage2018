@@ -5,186 +5,121 @@
  */
 package satimage.core;
 
-import satimage.Tools;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Point;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.util.Hashtable;
+import java.util.Set;
+import javax.imageio.ImageIO;
 
 /**
  *
  * @author Red
  */
-public class RGBImage {
+public class RGBImage extends BufferedImage {
     
-    private int[][] r;
-    public int getR(int x, int y) { return r[x][y]; }
-    
-    private int[][] g;
-    public int getG(int x, int y) { return g[x][y]; }
-    
-    private int[][] b;
-    public int getB(int x, int y) { return b[x][y]; }
-    
-    private int width;
-    private int height;
-    
-    public RGBImage()
-    {
-        r = null;
-        g = null;
-        b = null;
-        width  = 0;
-        height = 0;
-    }
+    private Dimension pixelSize;
+    private Hashtable<Point, Color> values;
     
     public RGBImage(int w, int h)
     {
-        width  = w;
-        height = h;
-        r = new int[width][height];
-        g = new int[width][height];
-        b = new int[width][height];
-        init();
+        super(w,h, BufferedImage.TYPE_INT_RGB);
+        pixelSize = new Dimension(1,1);
+        values = new Hashtable<Point, Color>();
     }
     
-    /**
-     * complétion par des zeros le tableau donné
-     * @param a le tableau à remplir
-     */
-    private void init()
+    public RGBImage(int w, int h, int pW, int pH)
     {
-        for(int j=0 ; j<height ; j++)
+        super(w*pW,h*pH, BufferedImage.TYPE_INT_RGB);
+        pixelSize = new Dimension(pW,pH);
+        values = new Hashtable<Point, Color>();
+    }
+    
+    public void addColor(int x, int y, Color color)
+    {
+        values.put(new Point(x,y), color);
+    }
+    
+    public void addRedAt(int x, int y)
+    {
+        addColor(x, y, Color.RED);
+    }
+    
+    public void addBlueAt(int x, int y)
+    {
+        addColor(x, y, Color.BLUE);
+    }
+    
+    public void addWhiteAt(int x, int y)
+    {
+        addColor(x, y, Color.WHITE);
+    }
+    
+    public void addBlackAt(int x, int y)
+    {
+        addColor(x, y, Color.BLACK);
+    }
+    
+    
+    public void build()
+    {
+        if ((pixelSize.width>0) && (pixelSize.height>0))
         {
-            for(int i=0 ; i<width ; i++)
+            //COLORATION DES RECTANGLES
+            //Pour chaque clause on dessine chaque rectange de pixels
+            Set<Point> keys = values.keySet();
+            for(Point key : keys)
             {
-                this.setWhiteAt(i, j);
+                drawRectangle(key.x*pixelSize.width, key.y*pixelSize.height, pixelSize.width, pixelSize.height, values.get(key));
+            }
+        }
+    }
+    
+    private void drawRectangle(int x, int y, int w, int h, Color color)
+    {
+        for(int j=0 ; j<h ; j++)
+        {
+            for(int i=0 ; i<w ; i++)
+            {
+                int x_ = x+i;
+                int y_ = y+j;
+                setRGB(x_, y_, color.getRGB());
             }
         }
     }
     
     /**
-     * Permet d'appliquer une couleur par le code palette(r,g,b) à un pixel donné
-     * @param x la ligne du pixel
-     * @param y la colonne du pixel
-     * @param r la valeur pour la couleur rouge
-     * @param g la valeur pour la couleur verte
-     * @param b la valeur pour la couleur bleu
-     */
-    public void setColor(int x, int y, int r, int g, int b)
-    {
-        this.r[x][y] = r;
-        this.g[x][y] = g; 
-        this.b[x][y] = b;
-    }
-    
-    /**
-     * Permet d'appliquer la couleur rouge à un pixel donné
-     * @param x
-     * @param y 
-     */
-    public void setRedAt(int x, int y)
-    {
-        setColor(x,y, 255,0,0);
-    }
-    
-    /**
-     * Permet d'appliquer la couleur bleu à un pixel donné
-     * @param x
-     * @param y 
-     */
-    public void setBlueAt(int x, int y)
-    {
-        setColor(x,y, 0,0,255);
-    }
-    
-    /**
-     * Permet d'appliquer la couleur verte à un pixel donné
-     * @param x
-     * @param y 
-     */
-    public void setGreenAt(int x, int y)
-    {
-        setColor(x,y, 0,255,0);
-    }
-    
-    /**
-     * Permet d'appliquer la couleur noire à un pixel donné
-     * @param x
-     * @param y 
-     */
-    public void setBlackAt(int x, int y)
-    {
-        setColor(x,y, 0,0,0);
-    }
-    
-    /**
-     * Permet d'appliquer la couleur blanche à un pixel donné
-     * @param x
-     * @param y 
-     */
-    public void setWhiteAt(int x, int y)
-    {
-        setColor(x,y, 255,255,255);
-    }
-    
-    //--------------------
-    //CODE AUTO
-    //--------------------
-
-    public int[][] getR() {
-        return r;
-    }
-
-    public int[][] getG() {
-        return g;
-    }
-
-    public int[][] getB() {
-        return b;
-    }
-
-    public int getWidth() {
-        return width;
-    }
-
-    public int getHeight() {
-        return height;
-    }
-
-    public BufferedImage getBufferedImage()
-    {
-        Tools tools = Tools.get();
-        BufferedImage img = new BufferedImage(width,height, BufferedImage.TYPE_INT_RGB);
-        for(int y=0 ; y<height ; y++)
-        {
-            for(int x=0 ; x<width ; x++)
-            {
-                img.setRGB(x, y, tools.getPixelValue(r[x][y], g[x][y], b[x][y]));
-            }
-        }
-        return img;
-    }
-    
-    /**
-     * Permet d'obtenir une image d'après les 3 composantes
+     * Permet d'obtenir une image avec les pixels zoomés
      * @param pWidth  la largeur d'un pixel
      * @param pHeight la hauteur d'un pixel
      * @return 
      */
-    public BufferedImage getBufferedImage(int pWidth, int pHeight)
+    public RGBImage getImageZoomed(int pWidth, int pHeight)
     {
-        Tools tools = Tools.get();
-        int tWidth  = width*pWidth;
-        int tHeight = height*pHeight;
-        BufferedImage img = new BufferedImage(tWidth,tHeight, BufferedImage.TYPE_INT_RGB);
-        for(int y=0 ; y<tHeight ; y++)
-        {
-            for(int x=0 ; x<tWidth ; x++)
-            {
-                int i = x/pWidth;
-                int j = y/pHeight;
-                img.setRGB(x, y, tools.getPixelValue(r[i][j], g[i][j], b[i][j]));
-            }
-        }
+        RGBImage img = new RGBImage(getWidth()*pWidth, getHeight()*pHeight, pWidth, pHeight);
+        img.values = new Hashtable(values);
+        img.build();
         return img;
     }
     
+    /**
+     * Permet de sauvegarder une image en .png
+     * @param root l'endroit où la sauver
+     * @param name le nom de l'image
+     */
+    public void writeImage(String root, String name)
+    {
+        try
+        {
+            File file = new File(root + name + ".png");
+            ImageIO.write(this, "png", file);
+        } 
+        catch (IOException e) 
+        {
+            System.out.println("Erreur : " + e );
+        }
+    }
 }

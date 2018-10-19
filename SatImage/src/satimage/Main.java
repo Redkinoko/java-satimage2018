@@ -6,6 +6,7 @@
 package satimage;
 
 import java.awt.image.BufferedImage;
+import java.io.File;
 import satimage.core.*;
 import view.Frame;
 import view.ImagePanel;
@@ -21,34 +22,30 @@ public class Main {
      */
     public static void main(String[] args) 
     {
-        Tools tools = Tools.get();
         DocumentReader documentReader = DocumentReader.get();
         //--------------------------
-        //testCreationImage();
+        String dirImg = getAbsolutePath() + "\\src\\data\\img\\";
+        String dirCnf = getAbsolutePath() + "\\src\\data\\cnf\\";
         //--------------------------
-        String dataDir = tools.getAbsolutePath() + "\\src\\data\\";
-        CNFDocument doc = new CNFDocument(dataDir, "test");
+        CNFDocument doc = new CNFDocument(dirCnf, "test");
         documentReader.read(doc);
         doc.print();
-        
+        RGBImage img = doc.getRGBImage(16,32);
         //---------------------------
-        showImage(doc.getRGBImage());
+        showImage(img);
+        //img.writeImage(dirImg, "TEST");
     }
     
-    public static RGBImage testRGBImage()
+    public static String getAbsolutePath()
     {
-        RGBImage img = new RGBImage(3, 3);
-        img.setBlueAt(1, 1);
-        img.setBlueAt(1, 1);
-        return img;
+        return new File("").getAbsolutePath();
     }
     
-    public static void showImage(RGBImage img)
+    public static void showImage(BufferedImage img)
     {
         Frame frame = new Frame();
-        BufferedImage bI = img.getBufferedImage(16,32);
-        frame.add(new ImagePanel(bI, 10, 10));
-        frame.setSize(bI.getWidth(), bI.getHeight());
+        frame.add(new ImagePanel(img, 10, 10));
+        frame.setSize(img.getWidth(), img.getHeight()*2);
         frame.setVisible(true);
     }
 }

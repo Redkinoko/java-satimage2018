@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package satimage.core;
+package core;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -20,25 +20,32 @@ import javax.imageio.ImageIO;
  */
 public class RGBImage extends BufferedImage {
     
-    private Dimension pixelSize;
+    private Dimension pixelDim;
+    public Dimension getPixelDim() { return pixelDim; }
+    
+    public RGBImage(int w, int h, Dimension pDim)
+    {
+        super(w*pDim.width,h*pDim.height, BufferedImage.TYPE_INT_RGB);
+        pixelDim = new Dimension(pDim.width, pDim.height);
+    }
     
     public RGBImage(int w, int h, int pW, int pH)
     {
         super(w*pW,h*pH, BufferedImage.TYPE_INT_RGB);
-        pixelSize = new Dimension(pW,pH);
+        pixelDim = new Dimension(pW,pH);
     }
     
     public RGBImage(int w, int h)
     {
         super(w,h, BufferedImage.TYPE_INT_RGB);
-        pixelSize = new Dimension(1,1);
+        pixelDim = new Dimension(1,1);
     }
     
     public RGBImage clone()
     {
         RGBImage tmp = new RGBImage(getWidth(), getHeight());
-        tmp.pixelSize.width  = pixelSize.width;
-        tmp.pixelSize.height = pixelSize.height;
+        tmp.pixelDim.width  = pixelDim.width;
+        tmp.pixelDim.height = pixelDim.height;
         
         for(int j=0 ; j<getHeight() ; j++)
         {
@@ -52,12 +59,12 @@ public class RGBImage extends BufferedImage {
     
     public void draw(Color color, int x, int y)
     {
-        for(int j=0 ; j<pixelSize.height ; j++)
+        for(int j=0 ; j<pixelDim.height ; j++)
         {
-            for(int i=0 ; i<pixelSize.width ; i++)
+            for(int i=0 ; i<pixelDim.width ; i++)
             {
-                int x_ = (x*pixelSize.width)+i;
-                int y_ = (y*pixelSize.height)+j;
+                int x_ = (x*pixelDim.width)+i;
+                int y_ = (y*pixelDim.height)+j;
                 setRGB(x_, y_, color.getRGB());
             }
         }

@@ -8,7 +8,6 @@ package view;
 import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
-import satimage.Tools;
 
 /**
  *

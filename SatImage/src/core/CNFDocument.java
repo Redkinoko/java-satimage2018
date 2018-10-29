@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package satimage.core;
+package core;
 
 
 import java.awt.Color;
@@ -42,7 +42,7 @@ public class CNFDocument extends Document {
      */
     private Hashtable<Integer, Integer> varOrder;
     
-    private Dimension pixelSize;
+    private Dimension pixelDim;
     private RGBImage image;
     
     /**
@@ -54,15 +54,29 @@ public class CNFDocument extends Document {
     public CNFDocument(String path, String name)
     {
         super(path,name,EXT);
-        clauses      = new ArrayList<List<Integer>>();
-        clauseOrder  = new Hashtable<Integer, Integer>();
-        varOrder     = new Hashtable<Integer, Integer>();
-        nbVariables  = 0;
-        nbClauses     = 0;
-        positiveColor = Color.BLUE;
-        negativeColor = Color.RED;
-        backgroundColor    = Color.BLACK;
-        image         = null;
+        clauses         = null;
+        clauseOrder     = null;
+        varOrder        = null;
+        nbVariables     = 0;
+        nbClauses       = 0;
+        positiveColor   = null;
+        negativeColor   = null;
+        backgroundColor = null;
+        image           = null;
+        pixelDim       = null;
+    }
+    
+    @Override
+    public void init()
+    {
+        super.init();
+        clauses         = new ArrayList<List<Integer>>();
+        clauseOrder     = new Hashtable<Integer, Integer>();
+        varOrder        = new Hashtable<Integer, Integer>();
+        positiveColor   = Color.BLUE;
+        negativeColor   = Color.RED;
+        backgroundColor = Color.BLACK;
+        pixelDim       = new Dimension(1,1);
     }
     
     /**
@@ -180,31 +194,49 @@ public class CNFDocument extends Document {
         } 
     }
     
+    public void setPixelDimension(int pWidth, int pHeight)
+    {
+        if(pixelDim != null && pWidth > 0 && pHeight > 0)
+        {
+            pixelDim.width  = pWidth;
+            pixelDim.height = pHeight;
+        }
+    }
     /**
      * Permet de dessiner l'image entiere représentant la clause
-     * @param pWidth la largeur d'un pixel
-     * @param pHeight la hauteur d'un pixel
-     */
-    public void drawImage(int pWidth, int pHeight)
+     *
+    */
+    private RGBImage createImage()
     {
-        image = new RGBImage(nbClauses, nbVariables, pWidth, pHeight);
-        for(int i=0 ; i<clauses.size() ; i++)
+        if(clauses != null && clauses.size() > 0)
         {
-            drawClause(i);
+            image = new RGBImage(nbClauses, nbVariables, pixelDim);
+            for(int i=0 ; i<clauses.size() ; i++)
+            {
+                drawClause(i);
+            }
         }
+        else
+        {
+            System.out.println("Error drawing image : 0 clauses");
+        }
+        return image;
     }
     
     /**
-     * Permet de récuperer l'image du document
-     * Si aucune image n'a été généré 
-     * une image avec des points de taille 1x1 est créé
-     * @return l'image représentant le document
+     * L'image représentant la clause est dessiné et si elle n'existe pas
+     * Sinon l'image en mémoire est retournée
+     * @return dernière image en mémoire générée
      */
     public RGBImage getImage()
     {
         if(image == null)
         {
-            drawImage(1,1);
+            createImage();
+        }
+        if(image != null && !image.getPixelDim().equals(pixelDim))
+        {
+            createImage();
         }
         return image;
     }
@@ -217,7 +249,7 @@ public class CNFDocument extends Document {
      */
     public void invertClauses(int c1, int c2)
     {
-        if(c1 != c2 && c1>=0 && c2 >=0 && clauseOrder.containsKey(c1) && clauseOrder.containsKey(c2))
+        if(clauseOrder != null && c1 != c2 && c1>=0 && c2 >=0 && clauseOrder.containsKey(c1) && clauseOrder.containsKey(c2))
         {
             if(image != null)
             {
@@ -273,7 +305,7 @@ public class CNFDocument extends Document {
     
     public void invertVariables(int v1, int v2)
     {
-        if(v1 != v2 && varOrder.containsKey(v1) && varOrder.containsKey(v2))
+        if(varOrder != null && v1 != v2 && varOrder.containsKey(v1) && varOrder.containsKey(v2))
         {
             if(image != null)
             {
@@ -312,18 +344,21 @@ public class CNFDocument extends Document {
     @Override
     public void print()
     {
-        System.out.println("VARS\t: "    + nbVariables);
-        System.out.println("CLAUSES\t: " + nbClauses);
-        System.out.println("ENTRIES\t: " + clauseOrder.size());
-        for(int i=0 ; i<clauses.size() ; i++)
-        {
-            for(int j=0 ; j<clauses.get(i).size() ; j++)
+            System.out.println("VARS\t: "    + nbVariables);
+            System.out.println("CLAUSES\t: " + nbClauses);
+            if(!(clauseOrder == null || clauses == null))
             {
-                System.out.print(clauses.get(i).get(j) + "|");
+                System.out.println("ENTRIES\t: " + clauseOrder.size());
+                for(int i=0 ; i<clauses.size() ; i++)
+                {
+                    for(int j=0 ; j<clauses.get(i).size() ; j++)
+                    {
+                        System.out.print(clauses.get(i).get(j) + "|");
+                    }
+                    System.out.println();
+                }
+                System.out.println();
             }
-            System.out.println();
-        }
-        System.out.println();
         super.print();
     }
     

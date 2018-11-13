@@ -12,3 +12,71 @@ La question est la suivante :
     Après un apprentissage basé sur un très grand nombre de formules, un réseau de neurones est-il capable
 de reconnaître, d’après l’image d’une formule, si cette formule est cohérente, et dans le cas contraire de
 déterminer si son incohérence est difficile ou facile à établir. 
+
+AIDE MEMOIRE 
+==
+Git commandes de base :
+==
+
+Récupérer le projet sous Git :
+-
+```
+git clone https://github.com/Redkinoko/java-satimage2018
+```
+
+Vérifier l'intégrité des fichiers et voir ses modifs :
+-
+```
+git status
+```
+
+Annuler les ajouts non commits :
+-
+```
+git checkout .
+```
+
+Récupérer la dernière MAJ :
+-
+```
+git pull origin master
+```
+
+Envoyer des données :
+-
+Procédure à suivre pour éviter d'écraser les autres contributions :
+```
+git add --all
+git commit -a -m "VOTRE_DESCRIPTION_PERSONNALISE"
+git pull origin master
+"Vérifier si il y a des incohérences..puis si uniquement aucun problème"
+git push origin master 
+```
+
+Vérifier ses branches locales :
+-
+```
+git branch
+```
+
+Créer une nouvelle branche local :
+-
+```
+git branch NOM_DE_BRANCHE
+```
+
+Changer de branche :
+-
+```
+git checkout NOM_DE_BRANCHE
+```
+
+Synchroniser les branches :
+-
+```
+git fetch origin NOM_BRANCH
+```
+ou
+```
+git fetch --all
+```

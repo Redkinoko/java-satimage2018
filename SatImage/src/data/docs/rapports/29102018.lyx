@@ -1,0 +1,398 @@
+#LyX 2.2 created this file. For more info see http://www.lyx.org/
+\lyxformat 508
+\begin_document
+\begin_header
+\save_transient_properties true
+\origin unavailable
+\textclass article
+\use_default_options true
+\maintain_unincluded_children false
+\language french
+\language_package default
+\inputencoding auto
+\fontencoding global
+\font_roman "default" "default"
+\font_sans "default" "default"
+\font_typewriter "default" "default"
+\font_math "auto" "auto"
+\font_default_family default
+\use_non_tex_fonts false
+\font_sc false
+\font_osf false
+\font_sf_scale 100 100
+\font_tt_scale 100 100
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\paperfontsize default
+\spacing single
+\use_hyperref false
+\papersize default
+\use_geometry false
+\use_package amsmath 1
+\use_package amssymb 1
+\use_package cancel 1
+\use_package esint 1
+\use_package mathdots 1
+\use_package mathtools 1
+\use_package mhchem 1
+\use_package stackrel 1
+\use_package stmaryrd 1
+\use_package undertilde 1
+\cite_engine basic
+\cite_engine_type default
+\biblio_style plain
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\justification true
+\use_refstyle 1
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\paragraph_indentation default
+\quotes_language french
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\end_header
+
+\begin_body
+
+\begin_layout Title
+Pré-Rapport du 29/10/2018 
+\begin_inset Newline newline
+\end_inset
+
+Projet tutoré
+\begin_inset Newline newline
+\end_inset
+
+Sujet n°5 :
+\begin_inset Newline newline
+\end_inset
+
+Deep learning au service du raisonnement automatique
+\begin_inset Newline newline
+\end_inset
+
+supervisé par Dr Olivier Bailleux
+\begin_inset Newline newline
+\end_inset
+
+Master Bases de Données et Intelligence Artificielle
+\begin_inset Newline newline
+\end_inset
+
+2018-2019
+\end_layout
+
+\begin_layout Author
+Julien HALLE
+\begin_inset Newpage pagebreak
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset CommandInset toc
+LatexCommand tableofcontents
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Newpage pagebreak
+\end_inset
+
+
+\end_layout
+
+\begin_layout Part
+Définition du sujet
+\end_layout
+
+\begin_layout Section
+Deep learning au service du raisonnement automatique
+\end_layout
+
+\begin_layout Quotation
+Déterminer si une formule : logique sous forme normale conjonctive est cohérente
+ (peut prendre la valeur vrai) est un problème central en raisonnement automatiq
+ue.
+ 
+\end_layout
+
+\begin_layout Quotation
+Ce problème est appelé SAT.
+ Pour les petites formules, comme par exemple (a ou b) et (a ou non b) et
+ (non a ou b), cela ne présente pas de difficulté particulière, mais avec
+ des formules comportant des centaines ou milliers de variables, c’est un
+ véritable challenge.
+\end_layout
+
+\begin_layout Quotation
+L’idée à la base de ce projet est de représenter une formule CNF comme une
+ sorte d’image : chaque variable correspond à une ligne, et chaque clause
+ (comme (a ou b), (non a ou b), …) à une colonne.
+ A l’intersection d’une ligne désignant une variable v et d’une colonne
+ désignant une clause q, on a un point rouge si v appartient à q, un point
+ bleu si non v appartient à q, sinon un point noir.
+ 
+\end_layout
+
+\begin_layout Quotation
+La question est la suivante : après un apprentissage basé sur un très grand
+ nombre de formules, un réseau de neurones est-il capable de reconnaître,
+ d’après l’image d’une formule, si cette formule est cohérente, et dans
+ le cas contraire de déterminer si son incohérence est difficile ou facile
+ à établir.
+ 
+\end_layout
+
+\begin_layout Quote
+Extrait sujet n°5 : DL au service du raisonnement automatique
+\end_layout
+
+\begin_layout Section
+Formulation du problème
+\end_layout
+
+\begin_layout Standard
+Une formule logique peut être représentée sous la forme d'une image avec
+ pour convention la couleur des intersections (rouge = variable positive,
+ bleue = variable négative, noire = variable non utilisée).
+ Cette convention permet de percevoir les différences rapidement.
+ La couleur noire qui est la valeur par défaut d'une image représente la
+ valeur zéro dans la matrice de l'image.
+\end_layout
+
+\begin_layout Standard
+Il existe deux problèmes majeurs pour ce modèle de représentation :
+\end_layout
+
+\begin_layout Enumerate
+L'ordre des lignes n'a pas d'importance dans la lecture de la formule finale
+\end_layout
+
+\begin_layout Enumerate
+L'ordre des colonnes n'a pas d'importance dans la lecture de la formule
+ finale
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset External
+	template RasterImage
+	filename rendu_test_cnf.png
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\align center
+figure 1 : Exemples de générations d'une même formule logique.
+\end_layout
+
+\begin_layout Standard
+On voit sur la figure 1, la génération d'une même formule qui est 
+\begin_inset Formula $f=\left(a\lor\lnot c\right)$
+\end_inset
+
+
+\begin_inset Formula $\land$
+\end_inset
+
+
+\begin_inset Formula $\left(\lnot a\lor b\lor c\right)$
+\end_inset
+
+ avec respectivement 
+\begin_inset Formula $q1=\left(a\lor\lnot c\right)$
+\end_inset
+
+ et 
+\begin_inset Formula $q2=\left(\lnot a\lor b\lor c\right)$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+La première image est la représentation sans inversion.
+\end_layout
+
+\begin_layout Itemize
+Dans la deuxième image, l'ordre des variables a et b a été inversé par rapport
+ à l'image précédente.
+\end_layout
+
+\begin_layout Itemize
+Dans la troisième image, l'ordre des clauses a été inversé par rapport à
+ l'image précédente.
+\end_layout
+
+\begin_layout Itemize
+Dans quatrième image, l'ordre des variables a et b a été inversé par rapport
+ à l'image précédente.
+\end_layout
+
+\begin_layout Standard
+Ce qui introduit un problème fondamental pour la suite : il peut exister
+ plusieurs images qui sont la représentation d'une même formule.
+\end_layout
+
+\begin_layout Standard
+Le but est de ne pas se retrouver avec des doublons au moment de traiter
+ les images avec l'intelligence artificielle.
+ C'est pourquoi il faut parvenir à obtenir une image optimale, et ceux quelque
+ soit l'image de départ, en réorganisant les pixels.
+\end_layout
+
+\begin_layout Part
+Informations concernant la génération de la solution
+\end_layout
+
+\begin_layout Section
+Structure de données
+\end_layout
+
+\begin_layout Standard
+Afin de pouvoir effectuer des tests probants et réalistes voir même se partager
+ des jeux de tests, il fallait une structure de donnée permettant le stockage
+ de la formule (sous forme des clauses).
+ 
+\end_layout
+
+\begin_layout Standard
+Le format de fichier .cnf est le format le plus courrament utilisé dans les
+ problèmes SAT, il est donc naturel de l'avoir choisi.
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset External
+	template RasterImage
+	filename rendu_test_cnf2.png
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\align center
+figure 2 : contenu du fichier test.cnf
+\end_layout
+
+\begin_layout Standard
+Les normes de ce format sont :
+\end_layout
+
+\begin_layout Itemize
+Tout contenu est espacé par un simple caractère 'espace'
+\end_layout
+
+\begin_layout Itemize
+Une ligne qui commence par le caractère 'c' est une ligne de commentaire.
+\end_layout
+
+\begin_layout Itemize
+Une ligne qui commence par le caractère 'p' est une ligne de description,
+ suivi de 'cnf' (afin d'indiquer le problème traité), puis du nombre de
+ variables, et pour finir du nombre de clauses.
+\end_layout
+
+\begin_layout Itemize
+Une ligne qui commence par un chiffre se termine par un zéro.
+ Elle décrit une clause où chaque chiffre correspond à une variable.
+ Un chiffre négatif indique la négation de la variable.
+\end_layout
+
+\begin_layout Section
+Solution
+\end_layout
+
+\begin_layout Standard
+Le langage choisi pour générer la solution est le Java avec l'IDE Netbeans
+ qui permet de gérer l'interfaçage très facilement et intuitivement.
+\end_layout
+
+\begin_layout Standard
+La solution est stockée sur un dépot Git à l'adresse suivante : 
+\begin_inset Flex URL
+status open
+
+\begin_layout Plain Layout
+
+https://github.com/Redkinoko/java-satimage2018
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Liste des fonctionnalités implémentées :
+\end_layout
+
+\begin_layout Itemize
+Lecture d'un fichier .cnf
+\end_layout
+
+\begin_layout Itemize
+Analyse d'un fichier .cnf et création de l'image associée.
+\end_layout
+
+\begin_layout Itemize
+Possibilité d'interchanger deux lignes ou deux colonnes (représentant respective
+ment les variables et les clauses) tout en affectant localement le rendu
+ de l'image.
+\end_layout
+
+\begin_layout Itemize
+Choix des dimensions (largeur, hauteur) des rectangles représentant les
+ intersections.
+ Un pixel ne permet pas une bonne lisibilité de l'image car trop petit à
+ l'écran.
+\end_layout
+
+\begin_layout Itemize
+Affichage rudimentaire des images permettant d'afficher plusieurs images
+ côte à côte.
+\end_layout
+
+\begin_layout Standard
+Liste des fonctionnalités prévues :
+\end_layout
+
+\begin_layout Itemize
+Permettre le mélange des variables au cas où l'ordre de lecture du fichier
+ ou numérotation des variables influencerait le résultat final.
+\end_layout
+
+\begin_layout Itemize
+Mettre en place une technique qui mesure le taux de mélange d'une image
+ en prenant en compte les voisins direct d'une intersection en 4 ou 8-voisins.
+\end_layout
+
+\end_body
+\end_document

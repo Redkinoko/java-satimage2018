@@ -5,10 +5,11 @@
  */
 package core;
 
-
+import main.Tools;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Set;
@@ -24,12 +25,15 @@ public class CNFDocument extends Document {
     public final static String DESC_PROBLEM = "p";
     public final static String DESC_TYPE    = "cnf";
     
-    private int nbVariables;
-    private int nbClauses;
+    private int nVariables;
+    private int nClauses;
   
     private Color positiveColor;
     private Color negativeColor;
     private Color backgroundColor;
+    /**
+     * Une ligne par clauses
+     */
     private List<List<Integer>> clauses;
     /**
      * key   = index de la clause dans la liste des clauses
@@ -57,8 +61,8 @@ public class CNFDocument extends Document {
         clauses         = null;
         clauseOrder     = null;
         varOrder        = null;
-        nbVariables     = 0;
-        nbClauses       = 0;
+        nVariables     = 0;
+        nClauses       = 0;
         positiveColor   = null;
         negativeColor   = null;
         backgroundColor = null;
@@ -76,7 +80,7 @@ public class CNFDocument extends Document {
         positiveColor   = Color.BLUE;
         negativeColor   = Color.RED;
         backgroundColor = Color.BLACK;
-        pixelDim       = new Dimension(1,1);
+        pixelDim        = new Dimension(1,1);
     }
     
     /**
@@ -123,8 +127,8 @@ public class CNFDocument extends Document {
     {
         if(line[0].equals(DESC_PROBLEM) && line[1].equals(DESC_TYPE))
         {
-            nbVariables = Integer.parseInt(line[2]);
-            nbClauses   = Integer.parseInt(line[3]);
+            nVariables = Integer.parseInt(line[2]);
+            nClauses   = Integer.parseInt(line[3]);
         }
     }
     
@@ -210,7 +214,7 @@ public class CNFDocument extends Document {
     {
         if(clauses != null && clauses.size() > 0)
         {
-            image = new RGBImage(nbClauses, nbVariables, pixelDim);
+            image = new RGBImage(nClauses, nVariables, pixelDim);
             for(int i=0 ; i<clauses.size() ; i++)
             {
                 drawClause(i);
@@ -344,8 +348,8 @@ public class CNFDocument extends Document {
     @Override
     public void print()
     {
-            System.out.println("VARS\t: "    + nbVariables);
-            System.out.println("CLAUSES\t: " + nbClauses);
+            System.out.println("VARS\t: "    + nVariables);
+            System.out.println("CLAUSES\t: " + nClauses);
             if(!(clauseOrder == null || clauses == null))
             {
                 System.out.println("ENTRIES\t: " + clauseOrder.size());
@@ -359,7 +363,63 @@ public class CNFDocument extends Document {
                 }
                 System.out.println();
             }
-        super.print();
+    }
+
+    public int[] getShuffleVars()
+    {
+        int[] prop = new int[nVariables];
+        for(int i=0 ; i<nVariables ; i++)
+        {
+            prop[i] = i+1;
+        }
+        int j = 0;
+        do
+        {
+            for(int i=0 ; i<nVariables ; i++)
+            {
+                int b   = Tools.get().getRandom(0, nVariables);
+                int t   = prop[i];
+                prop[i] = prop[b];
+                prop[b] = t;
+            }
+            
+            j = 0;
+            for(int i=0 ; i<(prop.length-1) ; i++)
+            {
+                if(prop[i]+1 == prop[i+1])
+                {
+                    j++;
+                }
+            }
+        }
+        while(j==(prop.length-1));
+        
+        return prop;
+    }
+    
+    /**
+     * Permet de changer aléatoirement le document
+     */
+    public void shuffle()
+    {
+        int[] vars = getShuffleVars();
+        for(int i=0 ; i<vars.length ; i++)
+        {
+            for(int j=0 ; j<clauses.size() ; j++)
+            {
+                for(int w=0 ; w<clauses.get(j).size() ; w++)
+                {
+                    if(clauses.get(j).get(w) == vars[i])
+                    {
+                        clauses.get(j).set(w, (i+1));
+                    }
+                    else if(clauses.get(j).get(w) == -vars[i])
+                    {
+                        clauses.get(j).set(w, -(i+1));
+                    }
+                }
+            }
+        }
     }
     
 }

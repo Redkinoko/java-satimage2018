@@ -1,3 +1,5 @@
+package main;
+
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
@@ -153,5 +155,10 @@ public class Tools {
     public String getAbsolutePath()
     {
         return new File("").getAbsolutePath();
+    }
+    
+    public int getRandom(int min, int max)
+    {
+        return (int)(Math.random()*(max-min)+min);
     }
 }

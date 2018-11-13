@@ -1,3 +1,5 @@
+package main;
+
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
@@ -8,6 +10,7 @@ import core.CNFDocument;
 import core.RGBImage;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import static java.lang.System.exit;
 import view.Frame;
 import view.ImagePanel;
 
@@ -21,8 +24,8 @@ public class Main {
     public static void main(String[] args) 
     {
         //--------------------------
-        String pathIMG = getAbsolutePath() + "\\src\\data\\img\\";
-        String pathCNF = getAbsolutePath() + "\\src\\data\\cnf\\";
+        String pathIMG = getAbsolutePath() + "/src/data/img/";
+        String pathCNF = getAbsolutePath() + "/src/data/cnf/";
         //--------------------------
         CNFDocument test = new CNFDocument(pathCNF, "test");
         CNFDocument f0   = new CNFDocument(pathCNF, "f0-rand+easy");
@@ -36,7 +39,7 @@ public class Main {
         doc.setPixelDimension(16, 32);
         //---------------------------
         showImage(doc);
-
+        /*
         doc.invertVariables(1, 2);
         showImage(doc);
         
@@ -45,10 +48,14 @@ public class Main {
         
         doc.invertVariables(1, 2);
         showImage(doc);
-
+        */
+        doc.shuffle();
+        doc.print();
+        showImage(doc);
         //img.writeImage(dirImg, "TEST2");
         //----------------------------
-        frame.setVisible(true);
+        //frame.setVisible(true);
+        exit(0);
     }
     
     public static String getAbsolutePath()

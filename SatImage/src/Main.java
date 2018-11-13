@@ -21,8 +21,8 @@ public class Main {
     public static void main(String[] args) 
     {
         //--------------------------
-        String pathIMG = getAbsolutePath() + "\\src\\data\\img\\";
-        String pathCNF = getAbsolutePath() + "\\src\\data\\cnf\\";
+        String pathIMG = getAbsolutePath() + "/src/data/img/";
+        String pathCNF = getAbsolutePath() + "/src/data/cnf/";
         //--------------------------
         CNFDocument test = new CNFDocument(pathCNF, "test");
         CNFDocument f0   = new CNFDocument(pathCNF, "f0-rand+easy");

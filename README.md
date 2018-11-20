@@ -82,7 +82,7 @@ git fetch --all
 ```
 
 Cloner une branche spécifique :
-_
+-
 ```
 git clone --single-branch -b NOM_BRANCH https://github.com/Redkinoko/java-satimage2018
 ```

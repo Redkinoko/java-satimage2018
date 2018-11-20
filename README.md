@@ -80,3 +80,9 @@ ou
 ```
 git fetch --all
 ```
+
+Cloner une branche spécifique :
+_
+```
+git clone --single-branch NOM_BRANCH https://github.com/Redkinoko/java-satimage2018
+```

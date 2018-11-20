@@ -1,0 +1,669 @@
+#LyX 2.2 created this file. For more info see http://www.lyx.org/
+\lyxformat 508
+\begin_document
+\begin_header
+\save_transient_properties true
+\origin unavailable
+\textclass article
+\use_default_options true
+\maintain_unincluded_children false
+\language french
+\language_package default
+\inputencoding auto
+\fontencoding global
+\font_roman "default" "default"
+\font_sans "default" "default"
+\font_typewriter "default" "default"
+\font_math "auto" "auto"
+\font_default_family default
+\use_non_tex_fonts false
+\font_sc false
+\font_osf false
+\font_sf_scale 100 100
+\font_tt_scale 100 100
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\paperfontsize default
+\spacing single
+\use_hyperref false
+\papersize default
+\use_geometry false
+\use_package amsmath 1
+\use_package amssymb 1
+\use_package cancel 1
+\use_package esint 1
+\use_package mathdots 1
+\use_package mathtools 1
+\use_package mhchem 1
+\use_package stackrel 1
+\use_package stmaryrd 1
+\use_package undertilde 1
+\cite_engine basic
+\cite_engine_type default
+\biblio_style plain
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\justification true
+\use_refstyle 1
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\paragraph_indentation default
+\quotes_language french
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\end_header
+
+\begin_body
+
+\begin_layout Title
+Pré-Rapport du 20/11/2018 
+\begin_inset Newline newline
+\end_inset
+
+Projet tutoré
+\begin_inset Newline newline
+\end_inset
+
+Sujet n°5 :
+\begin_inset Newline newline
+\end_inset
+
+Deep learning au service du raisonnement automatique
+\begin_inset Newline newline
+\end_inset
+
+supervisé par Dr Olivier Bailleux
+\begin_inset Newline newline
+\end_inset
+
+Master Bases de Données et Intelligence Artificielle
+\begin_inset Newline newline
+\end_inset
+
+2018-2019
+\end_layout
+
+\begin_layout Author
+Julien HALLE
+\end_layout
+
+\begin_layout Standard
+\begin_inset Newpage pagebreak
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset CommandInset toc
+LatexCommand tableofcontents
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Newpage pagebreak
+\end_inset
+
+
+\end_layout
+
+\begin_layout Part
+Définition du sujet
+\end_layout
+
+\begin_layout Section
+Deep learning au service du raisonnement automatique
+\end_layout
+
+\begin_layout Quotation
+Déterminer si une formule : logique sous forme normale conjonctive est cohérente
+ (peut prendre la valeur vrai) est un problème central en raisonnement automatiq
+ue.
+ 
+\end_layout
+
+\begin_layout Quotation
+Ce problème est appelé SAT.
+ Pour les petites formules, comme par exemple (a ou b) et (a ou non b) et
+ (non a ou b), cela ne présente pas de difficulté particulière, mais avec
+ des formules comportant des centaines ou milliers de variables, c’est un
+ véritable challenge.
+\end_layout
+
+\begin_layout Quotation
+L’idée à la base de ce projet est de représenter une formule CNF comme une
+ sorte d’image : chaque variable correspond à une ligne, et chaque clause
+ (comme (a ou b), (non a ou b), …) à une colonne.
+ A l’intersection d’une ligne désignant une variable v et d’une colonne
+ désignant une clause q, on a un point rouge si v appartient à q, un point
+ bleu si non v appartient à q, sinon un point noir.
+ 
+\end_layout
+
+\begin_layout Quotation
+La question est la suivante : après un apprentissage basé sur un très grand
+ nombre de formules, un réseau de neurones est-il capable de reconnaître,
+ d’après l’image d’une formule, si cette formule est cohérente, et dans
+ le cas contraire de déterminer si son incohérence est difficile ou facile
+ à établir.
+ 
+\end_layout
+
+\begin_layout Quote
+Extrait sujet n°5 : DL au service du raisonnement automatique
+\end_layout
+
+\begin_layout Section
+Formulation du problème
+\end_layout
+
+\begin_layout Standard
+Une formule logique peut être représentée sous la forme d'une image avec
+ pour convention la couleur des intersections (rouge = variable positive,
+ bleue = variable négative, noire = variable non utilisée).
+ Cette convention permet de percevoir les différences rapidement.
+ La couleur noire qui est la valeur par défaut d'une image représente la
+ valeur zéro dans la matrice de l'image.
+\end_layout
+
+\begin_layout Standard
+Il existe deux problèmes majeurs pour ce modèle de représentation :
+\end_layout
+
+\begin_layout Enumerate
+L'ordre des lignes n'a pas d'importance dans la lecture de la formule finale
+\end_layout
+
+\begin_layout Enumerate
+L'ordre des colonnes n'a pas d'importance dans la lecture de la formule
+ finale
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset External
+	template RasterImage
+	filename rendu_test_cnf.png
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\align center
+figure 1 : Exemples de générations d'une même formule logique.
+\end_layout
+
+\begin_layout Standard
+On voit sur la figure 1, la génération d'une même formule qui est 
+\begin_inset Formula $f=\left(a\lor\lnot c\right)$
+\end_inset
+
+
+\begin_inset Formula $\land$
+\end_inset
+
+
+\begin_inset Formula $\left(\lnot a\lor b\lor c\right)$
+\end_inset
+
+ avec respectivement 
+\begin_inset Formula $q1=\left(a\lor\lnot c\right)$
+\end_inset
+
+ et 
+\begin_inset Formula $q2=\left(\lnot a\lor b\lor c\right)$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+La première image est la représentation sans inversion.
+\end_layout
+
+\begin_layout Itemize
+Dans la deuxième image, l'ordre des variables a et b a été inversé par rapport
+ à l'image précédente.
+\end_layout
+
+\begin_layout Itemize
+Dans la troisième image, l'ordre des clauses a été inversé par rapport à
+ l'image précédente.
+\end_layout
+
+\begin_layout Itemize
+Dans quatrième image, l'ordre des variables a et b a été inversé par rapport
+ à l'image précédente.
+\end_layout
+
+\begin_layout Standard
+Ce qui introduit un problème fondamental pour la suite : il peut exister
+ plusieurs images qui sont la représentation d'une même formule.
+\end_layout
+
+\begin_layout Standard
+Le but est de ne pas se retrouver avec des doublons au moment de traiter
+ les images avec l'intelligence artificielle.
+ C'est pourquoi il faut parvenir à obtenir une image optimale, et ceux quelque
+ soit l'image de départ, en réorganisant les pixels.
+\begin_inset Newpage pagebreak
+\end_inset
+
+
+\end_layout
+
+\begin_layout Part
+Evolution du projet (20/11/2018)
+\end_layout
+
+\begin_layout Section
+Approche applicative pour la partie intelligence artificielle
+\end_layout
+
+\begin_layout Standard
+Afin de comprendre d'essayer de comprendre les base du fonctionnement d'une
+ intelligence artificielle deux applications ont été réalisées :
+\end_layout
+
+\begin_layout Enumerate
+NeuralNet : c'est une application contenant un réseau de neurone simple
+ capable de détecter un motif donné particulier.
+\end_layout
+
+\begin_layout Enumerate
+ConvNet : c'est une application permettant pour le moment uniquement l'applicati
+on d'une convolution, ReLU et max pooling.
+ Il reste à implémenter un réseau de neurone complet.
+\end_layout
+
+\begin_layout Standard
+Les deux applications sont contenu dans le même dépot : 
+\begin_inset CommandInset href
+LatexCommand href
+target "https://github.com/Redkinoko/java-cnn2018"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+NeuralNet
+\end_layout
+
+\begin_layout Subsubsection
+Motif
+\end_layout
+
+\begin_layout Standard
+Un motif est une image de taille 2x2 contenant de 0 jusqu'à 4 pixel noirs.
+ Il y a 16 motifs possible.
+\end_layout
+
+\begin_layout Standard
+Pour la figure 1 de gauche vers la droite :
+\end_layout
+
+\begin_layout Enumerate
+(0,0,0,0)
+\end_layout
+
+\begin_layout Enumerate
+(1,0,0,0)
+\end_layout
+
+\begin_layout Enumerate
+(0,1,1,0)
+\end_layout
+
+\begin_layout Enumerate
+(1,0,1,0)
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset External
+	template RasterImage
+	filename motif.png
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\align center
+Figure 1 : 4 exemple de motifs
+\end_layout
+
+\begin_layout Subsubsection
+Réseau de neurones
+\end_layout
+
+\begin_layout Standard
+Un neurone est un objet prenant une entrée et sortant une valeur.
+ Le réseau est basique est comprend un neurone par pixel.
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset External
+	template RasterImage
+	filename neurone.png
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\align center
+Figure 2 : Réseau de neurones
+\begin_inset Newline newline
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\align block
+Chaque neurone contient la valeur d'un poids 'w' initialisé à zéro et prend
+ un pixel en entré 'in'.
+ On somme toute les entrées multipliées par leur poids associé minoré par
+ le seuil activateur appelé Weight0.
+\end_layout
+
+\begin_layout Standard
+Afin d'obtenir la probabilité de détection, étant donné qu'on a entrainé
+ le réseau de neurones avec les 16 motifs possibles, il suffit de diviser
+ le nombre de prédiction juste par 16.
+\end_layout
+
+\begin_layout Standard
+Pour la figure 3 :
+\end_layout
+
+\begin_layout Enumerate
+La zone d'entrainement permet de choisir le motif à apprendre.
+\end_layout
+
+\begin_layout Enumerate
+Permet de voir le résultat de l'entrainement après chaque tentative de prédictio
+n.
+\end_layout
+
+\begin_layout Enumerate
+Permet de choisir un motif et demander au réseau si c'est celui qu'on lui
+ a appris à détecter.
+\end_layout
+
+\begin_layout Enumerate
+Est l'estimation du réseau.
+ 
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+\begin_inset Quotes fld
+\end_inset
+
+Je reconnais la cible
+\begin_inset Quotes frd
+\end_inset
+
+ signifie que le réseau prédit que l'image est identique à celle apprise.
+\end_layout
+
+\begin_layout Itemize
+\begin_inset Quotes fld
+\end_inset
+
+Prédiction VALIDE
+\begin_inset Quotes frd
+\end_inset
+
+ signifie que le réseau ne s'est pas trompé.
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+\align center
+\begin_inset External
+	template RasterImage
+	filename interfaceNN.png
+	lyxscale 70
+	scale 70
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\align center
+Figure 3 : Interface de l'application
+\begin_inset Newpage pagebreak
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+ConvNet
+\end_layout
+
+\begin_layout Subsubsection
+Convolution
+\end_layout
+
+\begin_layout Standard
+La convolution d'une image est l'application d'un filtre donné, on superpose
+ le filtre sur l'image bordé de zéros.
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset External
+	template RasterImage
+	filename Convolution.png
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\align center
+Figure 4 : Explication d'une convolution
+\end_layout
+
+\begin_layout Subsubsection
+ReLU
+\end_layout
+
+\begin_layout Standard
+Appliquer une ReLU sur une image revient à mettre à zéro tous les bits négatif
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset External
+	template RasterImage
+	filename ReLU.png
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\align center
+Figure 5 : Explication de la ReLU
+\end_layout
+
+\begin_layout Subsubsection
+Max Pooling
+\end_layout
+
+\begin_layout Standard
+Le max pooling consiste à prendre la plus grande valeur parmis une sous-image
+ donnée, ici 2x2
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset External
+	template RasterImage
+	filename maxPooling.png
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\align center
+Figure 6 : Explication du Max Pooling
+\end_layout
+
+\begin_layout Subsubsection
+Reste à implémenter : Réseau de neurones complet
+\end_layout
+
+\begin_layout Standard
+Un réseau de neurone sur plusieurs couches ou chacunes des sous-couches
+ est complement relié est un réseau complet
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset External
+	template RasterImage
+	filename convNet.png
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\align center
+Figure 7 : Exemple de réseau de neurone complet
+\end_layout
+
+\begin_layout Subsubsection
+Application sur une image réel
+\end_layout
+
+\begin_layout Standard
+Avant d'appliquer une convolution il faut savoir qu'une image est enfaite
+ en trois dimensions dont les composantes sont :
+\end_layout
+
+\begin_layout Enumerate
+la largeur
+\end_layout
+
+\begin_layout Enumerate
+la longeur
+\end_layout
+
+\begin_layout Enumerate
+le type de la couleur Rouge ou Vert ou bien Bleu
+\end_layout
+
+\begin_layout Standard
+Il faudra alors appliquer toutes les opérations sur les sous-images de chaque
+ type de couleur.
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset External
+	template RasterImage
+	filename cat.png
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\align center
+Figure 8 : Image de chat brut
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset External
+	template RasterImage
+	filename cat_extract.png
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\align center
+Figure 9 : Image du chat (figure 8) après extraction de la composante bleu
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset External
+	template RasterImage
+	filename cat_3filtres.png
+	lyxscale 70
+	scale 70
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\align center
+Figure 10 : Image du chat (figure 9) après convolution dans trois filtres
+ différents puis ReLU
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset External
+	template RasterImage
+	filename cat_3maxPool.png
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\align center
+Figure 11 : Image du chat (figure 10) après max pooling
+\end_layout
+
+\end_body
+\end_document

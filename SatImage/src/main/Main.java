@@ -33,7 +33,7 @@ public class Main {
         CNFDocument f2   = new CNFDocument(pathCNF, "f2-peebOr+rand");
         CNFDocument f3   = new CNFDocument(pathCNF, "f3-peebXor_rand");
         //---------------------------
-        CNFDocument doc = test;
+        CNFDocument doc = f1;
         doc.load();
         doc.print();
         doc.setPixelDimension(16, 32);
@@ -54,8 +54,8 @@ public class Main {
         showImage(doc);
         //img.writeImage(dirImg, "TEST2");
         //----------------------------
-        //frame.setVisible(true);
-        exit(0);
+        frame.setVisible(true);
+        //exit(0);
     }
     
     public static String getAbsolutePath()

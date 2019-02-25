@@ -20,38 +20,56 @@ import javax.imageio.ImageIO;
  */
 public class RGBImage extends BufferedImage {
     
+    private Dimension base;
+    private int[][] matrix;
     private Dimension pixelDim;
     public Dimension getPixelDim() { return pixelDim; }
     
     public RGBImage(int w, int h, Dimension pDim)
     {
-        super(w*pDim.width,h*pDim.height, BufferedImage.TYPE_INT_RGB);
+        super(w*pDim.width, h*pDim.height, BufferedImage.TYPE_INT_RGB);
+        matrix   = new int[w][h];
+        base     = new Dimension(w,h);
         pixelDim = new Dimension(pDim.width, pDim.height);
     }
     
-    public RGBImage(int w, int h, int pW, int pH)
+    public RGBImage(Dimension b, int pW, int pH)
     {
-        super(w*pW,h*pH, BufferedImage.TYPE_INT_RGB);
+        super(((int)b.getWidth())*pW, ((int)b.getHeight())*pH, BufferedImage.TYPE_INT_RGB);
+        int w = (int)b.getWidth();
+        int h = (int)b.getHeight();
+        matrix   = new int[w][h];
+        base     = new Dimension(w,h);
         pixelDim = new Dimension(pW,pH);
-    }
-    
-    public RGBImage(int w, int h)
-    {
-        super(w,h, BufferedImage.TYPE_INT_RGB);
-        pixelDim = new Dimension(1,1);
     }
     
     public RGBImage clone()
     {
-        RGBImage tmp = new RGBImage(getWidth(), getHeight());
-        tmp.pixelDim.width  = pixelDim.width;
-        tmp.pixelDim.height = pixelDim.height;
-        
-        for(int j=0 ; j<getHeight() ; j++)
+        return clone(base, this.pixelDim.width, this.pixelDim.height);
+    }
+    
+    public RGBImage clone(int pW, int pH)
+    {
+        return clone(base, pW,pH);
+    }
+    
+    public RGBImage clone(Dimension b, int pW, int pH)
+    {
+        RGBImage tmp = new RGBImage(b, pW, pH);
+        for(int y=0 ; y<base.getHeight() ; y++)
         {
-            for(int i=0 ; i<getWidth() ; i++)
+            for(int x=0 ; x<base.getWidth() ; x++)
             {
-                tmp.setRGB(i,j, getRGB(i, j));
+                for(int j=0 ; j<pH ; j++)
+                {
+                    for(int i=0 ; i<pW ; i++)
+                    {
+                        int x_ = (x*pW)+i;
+                        int y_ = (y*pH)+j;
+                        tmp.setRGB(x_, y_, matrix[x][y]);
+                        tmp.matrix[x][y] = matrix[x][y];
+                    }
+                }
             }
         }
         return tmp;
@@ -66,6 +84,7 @@ public class RGBImage extends BufferedImage {
                 int x_ = (x*pixelDim.width)+i;
                 int y_ = (y*pixelDim.height)+j;
                 setRGB(x_, y_, color.getRGB());
+                matrix[x][y] = color.getRGB();
             }
         }
     }
@@ -86,5 +105,56 @@ public class RGBImage extends BufferedImage {
         {
             System.out.println("Erreur : " + e );
         }
+    }
+    
+    public boolean equals(RGBImage img)
+    {
+        if(getWidth() != img.getWidth() || getHeight() != img.getHeight())
+        {
+            return false;
+        }
+        for(int i=0 ; i<getWidth() ; i++)
+        {
+            for(int j=0 ; j<getHeight() ; j++)
+            {
+                if(this.getRGB(i, j) != img.getRGB(i, j))
+                {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+    
+    public int getRedChannel(int i, int j)
+    {
+        return (getRGB(i,j) >> 16) & 0xFF;
+    }
+    
+    public int getGreenChannel(int i, int j)
+    {
+        return (getRGB(i,j) >> 8) & 0xFF;
+    }
+    
+    public int getBlueChannel(int i, int j)
+    {
+        return (getRGB(i,j) >> 0) & 0xFF;
+    }
+    
+    public RGBImage substract(RGBImage img)
+    {
+        RGBImage this_ = this.clone();
+        for(int i=0 ; i<getWidth() ; i++)
+        {
+            for(int j=0 ; j<getHeight() ; j++)
+            {
+                int p = this_.getRGB(i, j);
+                int r = (p >> 16) & 0xFF;
+                int g = (p >> 8)  & 0xFF;
+                int b = (p >> 0)  & 0xFF;
+                
+            }
+        }
+        return this_;
     }
 }

@@ -13,6 +13,12 @@ import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.Map.Entry;
 import javax.imageio.ImageIO;
 
 /**
@@ -160,5 +166,14 @@ public class Tools {
     public int getRandom(int min, int max)
     {
         return (int)(Math.random()*(max-min)+min);
+    }
+    
+    public List<Entry<Integer, Integer>> sortByValue(HashMap<Integer, Integer> map)
+    {
+        HashMap<Integer, Integer> out = new LinkedHashMap<>();
+        List<Entry<Integer, Integer>> sortList = new ArrayList<>(map.entrySet());
+        sortList.sort(Entry.comparingByValue());
+        
+        return sortList;
     }
 }

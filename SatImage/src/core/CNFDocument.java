@@ -9,10 +9,10 @@ import main.Tools;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Hashtable;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeMap;
 
 /**
  *
@@ -39,12 +39,18 @@ public class CNFDocument extends Document {
      * key   = index de la clause dans la liste des clauses
      * value = colonne d'affichage
      */
-    private Hashtable<Integer, Integer> clauseOrder;
+    private TreeMap<Integer, Integer> clauseOrder;
     /**
      * key   = valeur (-1,1,...) de la variable lue 
      * value = ligne d'affichage
      */
-    private Hashtable<Integer, Integer> varOrder;
+    private TreeMap<Integer, Integer> varOrder;
+    
+    /**
+     * key = valeur (-1,1,...) de la variable lue
+     * value = nombre de clauses po
+     */
+    private HashMap<Integer, Integer> countVar;
     
     private Dimension pixelDim;
     private RGBImage image;
@@ -74,9 +80,10 @@ public class CNFDocument extends Document {
     public void init()
     {
         super.init();
-        clauses         = new ArrayList<List<Integer>>();
-        clauseOrder     = new Hashtable<Integer, Integer>();
-        varOrder        = new Hashtable<Integer, Integer>();
+        clauses         = new ArrayList<>();
+        clauseOrder     = new TreeMap<>();
+        varOrder        = new TreeMap<>();
+        countVar        = new HashMap<>();
         positiveColor   = Color.BLUE;
         negativeColor   = Color.RED;
         backgroundColor = Color.BLACK;
@@ -149,6 +156,15 @@ public class CNFDocument extends Document {
                 order = Math.abs(key)-1;
                 varOrder.put(key, order);
                 c.add(key);
+                if(countVar.containsKey(key))
+                {
+                    int v = countVar.get(key);
+                    countVar.put(key, v+1);
+                }
+                else
+                {
+                    countVar.put(key, 1);
+                }
             }
             clauseOrder.put(clauseOrder.size(), clauseOrder.size());
             clauses.add(c);
@@ -253,6 +269,8 @@ public class CNFDocument extends Document {
      */
     public void invertClauses(int c1, int c2)
     {
+        c1--;
+        c2--;
         if(clauseOrder != null && c1 != c2 && c1>=0 && c2 >=0 && clauseOrder.containsKey(c1) && clauseOrder.containsKey(c2))
         {
             if(image != null)
@@ -273,6 +291,23 @@ public class CNFDocument extends Document {
         }
     }
     
+    private void cleanVariable(int v1)
+    {
+        int v, absV;
+        for(int i=0 ; i<clauses.size() ; i++)
+        {
+            for(int j=0 ; j<clauses.get(i).size() ; j++)
+            {
+                v  = clauses.get(i).get(j);
+                absV = Math.abs(v);
+                if(v1 == absV)
+                {
+                    clean(clauseOrder.get(i), varOrder.get(v));
+                }
+            }
+        }
+    }
+    
     private void cleanVariables(int v1, int v2)
     {
         int v, absV;
@@ -285,6 +320,23 @@ public class CNFDocument extends Document {
                 if(v1 == absV || v2 == absV)
                 {
                     clean(clauseOrder.get(i), varOrder.get(v));
+                }
+            }
+        }
+    }
+    
+    private void drawVariable(int v1)
+    {
+        int v, absV;
+        for(int i=0 ; i<clauses.size() ; i++)
+        {
+            for(int j=0 ; j<clauses.get(i).size() ; j++)
+            {
+                v  = clauses.get(i).get(j);
+                absV = Math.abs(v);
+                if(v1 == absV)
+                {
+                    draw(v, clauseOrder.get(i), varOrder.get(v));
                 }
             }
         }
@@ -327,6 +379,37 @@ public class CNFDocument extends Document {
         }
     }
     
+    public void invertLineSigns(int line)
+    {
+        if(varOrder != null && line>0 && line <= this.getClauses().size())
+        {
+            if(image != null)
+            {
+                cleanVariable(line);
+            }
+            int v, vAbs;
+            for(int i=0 ; i<clauses.size() ; i++)
+            {
+                for(int j=0 ; j<clauses.get(i).size() ; j++)
+                {
+                    v = getClauses().get(i).get(j);
+                    vAbs = Math.abs(v);
+                    if(vAbs == line)
+                    {
+                        getClauses().get(i).set(j, -v);
+                    }
+                }
+            }
+            Integer pos = this.getCountVar().get(line);
+            this.getCountVar().put(line, this.getCountVar().get(-line));
+            this.getCountVar().put(-line, pos);
+            if(image != null)
+            {
+                drawVariable(line);
+            }
+        }
+    }
+    
     public void printClauseOrder()
     {
         Set<Integer> keys = clauseOrder.keySet();
@@ -365,61 +448,85 @@ public class CNFDocument extends Document {
             }
     }
 
-    public int[] getShuffleVars()
-    {
-        int[] prop = new int[nVariables];
-        for(int i=0 ; i<nVariables ; i++)
-        {
-            prop[i] = i+1;
-        }
-        int j = 0;
-        do
-        {
-            for(int i=0 ; i<nVariables ; i++)
-            {
-                int b   = Tools.get().getRandom(0, nVariables);
-                int t   = prop[i];
-                prop[i] = prop[b];
-                prop[b] = t;
-            }
-            
-            j = 0;
-            for(int i=0 ; i<(prop.length-1) ; i++)
-            {
-                if(prop[i]+1 == prop[i+1])
-                {
-                    j++;
-                }
-            }
-        }
-        while(j==(prop.length-1));
-        
-        return prop;
+    public int getnVariables() {
+        return nVariables;
+    }
+
+    public void setnVariables(int nVariables) {
+        this.nVariables = nVariables;
+    }
+
+    public int getnClauses() {
+        return nClauses;
+    }
+
+    public void setnClauses(int nClauses) {
+        this.nClauses = nClauses;
+    }
+
+    public Color getPositiveColor() {
+        return positiveColor;
+    }
+
+    public void setPositiveColor(Color positiveColor) {
+        this.positiveColor = positiveColor;
+    }
+
+    public Color getNegativeColor() {
+        return negativeColor;
+    }
+
+    public void setNegativeColor(Color negativeColor) {
+        this.negativeColor = negativeColor;
+    }
+
+    public Color getBackgroundColor() {
+        return backgroundColor;
+    }
+
+    public void setBackgroundColor(Color backgroundColor) {
+        this.backgroundColor = backgroundColor;
+    }
+
+    public List<List<Integer>> getClauses() {
+        return clauses;
+    }
+
+    public void setClauses(List<List<Integer>> clauses) {
+        this.clauses = clauses;
+    }
+
+    public TreeMap<Integer, Integer> getClauseOrder() {
+        return clauseOrder;
+    }
+
+    public void setClauseOrder(TreeMap<Integer, Integer> clauseOrder) {
+        this.clauseOrder = clauseOrder;
+    }
+
+    public TreeMap<Integer, Integer> getVarOrder() {
+        return varOrder;
+    }
+
+    public void setVarOrder(TreeMap<Integer, Integer> varOrder) {
+        this.varOrder = varOrder;
+    }
+
+    public Dimension getPixelDim() {
+        return pixelDim;
+    }
+
+    public void setPixelDim(Dimension pixelDim) {
+        this.pixelDim = pixelDim;
+    }
+
+    public HashMap<Integer, Integer> getCountVar() {
+        return countVar;
+    }
+
+    public void setCountVar(HashMap<Integer, Integer> countVar) {
+        this.countVar = countVar;
     }
     
-    /**
-     * Permet de changer aléatoirement le document
-     */
-    public void shuffle()
-    {
-        int[] vars = getShuffleVars();
-        for(int i=0 ; i<vars.length ; i++)
-        {
-            for(int j=0 ; j<clauses.size() ; j++)
-            {
-                for(int w=0 ; w<clauses.get(j).size() ; w++)
-                {
-                    if(clauses.get(j).get(w) == vars[i])
-                    {
-                        clauses.get(j).set(w, (i+1));
-                    }
-                    else if(clauses.get(j).get(w) == -vars[i])
-                    {
-                        clauses.get(j).set(w, -(i+1));
-                    }
-                }
-            }
-        }
-    }
     
 }

@@ -5,19 +5,80 @@
  */
 package view;
 
+import core.CNFDocument;
+import core.RGBImage;
+import core.Shuffler;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import javax.swing.JPanel;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+
 /**
  *
  * @author Red
  */
 public class Frame extends javax.swing.JFrame {
 
-    /**
-     * Creates new form Frame
-     */
-    public Frame() {
+    private int incr = 0;
+    private CNFDocument doc;
+    private Shuffler shuffler;
+    private ImagePanel currentP;
+    private List<ImagePanel> imgs;
+    private Dimension pixelDim;
+            
+    public Frame(CNFDocument d, Shuffler s) {
         initComponents();
+        doc      = d;
+        shuffler = s;
+        pixelDim = new Dimension(doc.getPixelDim().width, doc.getPixelDim().height);
+        currentP = new ImagePanel("Image Courante", doc.getImage(), 6,16);
+        imgs = new ArrayList<>();
+        imgs.add(currentP);
+        this.jSpinnerPixelWidth.setValue(pixelDim.width);
+        this.jSpinnerPixelHeight.setValue(pixelDim.height);
+        this.jComboBox1.addItem(currentP.getTitle());
+        this.jPanelView.add(currentP);
+        this.jPanelView.updateUI();
     }
-
+    
+    public void displayCurrentImage() {
+        if(doc != null)
+        {
+            RGBImage img = doc.getImage();
+            if(img != null)
+            {
+                ImagePanel imgP = new ImagePanel("copie_"+incr, img.clone(), 6,16);
+                incr++;
+                this.jPanelView.add(imgP);
+                imgs.add(imgP);
+                this.jComboBox1.addItem(imgP.getTitle());
+            }
+        }
+    }
+    
+    public JPanel getView() {
+        return this.jPanelView;
+    }
+    
+    public void updateSelectedView() {
+        imgs.get(this.jComboBox1.getSelectedIndex()).recalculate((Integer)jSpinnerPixelWidth.getValue(), (Integer)jSpinnerPixelHeight.getValue());
+    }
+    
+    public void updateAllView() {
+        for(ImagePanel imgP:imgs) {
+            imgP.recalculate((Integer)jSpinnerPixelWidth.getValue(), (Integer)jSpinnerPixelHeight.getValue());
+        }
+    }
+    
+    public void paintView() {
+        this.jPanelView.updateUI();
+        this.jPanelView.repaint();
+    }
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -27,47 +88,282 @@ public class Frame extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        jPanelView = new javax.swing.JPanel();
+        jPanelTools = new javax.swing.JPanel();
+        jPanel3 = new javax.swing.JPanel();
+        jComboBox1 = new javax.swing.JComboBox<>();
+        jPanel4 = new javax.swing.JPanel();
+        jCheckBoxSuppr = new javax.swing.JCheckBox();
+        jButtonDelete = new javax.swing.JButton();
+        jPanel1 = new javax.swing.JPanel();
+        jLabel2 = new javax.swing.JLabel();
+        jSpinnerPixelWidth = new javax.swing.JSpinner();
+        jLabel1 = new javax.swing.JLabel();
+        jSpinnerPixelHeight = new javax.swing.JSpinner();
+        jCheckBoxPreview = new javax.swing.JCheckBox();
+        jButton1 = new javax.swing.JButton();
+        jCheckBoxAplyAll = new javax.swing.JCheckBox();
+        jPanel2 = new javax.swing.JPanel();
+        jButtonDisplayImg = new javax.swing.JButton();
+        jButton2 = new javax.swing.JButton();
+        jPanel5 = new javax.swing.JPanel();
+        jButton3 = new javax.swing.JButton();
+        jButton4 = new javax.swing.JButton();
+
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        getContentPane().setLayout(new java.awt.GridLayout());
+
+        jPanelView.setBorder(javax.swing.BorderFactory.createTitledBorder("Apercu"));
+        jPanelView.setLayout(new java.awt.GridLayout(1, 0));
+        getContentPane().add(jPanelView, java.awt.BorderLayout.CENTER);
+
+        jPanelTools.setBorder(javax.swing.BorderFactory.createTitledBorder("Outils"));
+        jPanelTools.setLayout(new java.awt.GridLayout(4, 1));
+
+        jPanel3.setBorder(javax.swing.BorderFactory.createTitledBorder("Selection"));
+        jPanel3.setLayout(new java.awt.GridLayout(3, 1));
+
+        jComboBox1.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                jComboBox1ItemStateChanged(evt);
+            }
+        });
+        jPanel3.add(jComboBox1);
+
+        jPanel4.setLayout(new java.awt.GridBagLayout());
+
+        jCheckBoxSuppr.setText("Cocher pour");
+        jCheckBoxSuppr.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jCheckBoxSupprActionPerformed(evt);
+            }
+        });
+        jPanel4.add(jCheckBoxSuppr, new java.awt.GridBagConstraints());
+
+        jButtonDelete.setText("Supprimer");
+        jButtonDelete.setEnabled(false);
+        jButtonDelete.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonDeleteActionPerformed(evt);
+            }
+        });
+        jPanel4.add(jButtonDelete, new java.awt.GridBagConstraints());
+
+        jPanel3.add(jPanel4);
+
+        jPanelTools.add(jPanel3);
+
+        jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder("Taille de la tile"));
+        jPanel1.setLayout(new java.awt.GridLayout(4, 2));
+
+        jLabel2.setText("Largeur");
+        jPanel1.add(jLabel2);
+
+        jSpinnerPixelWidth.setModel(new javax.swing.SpinnerNumberModel(1, 1, null, 1));
+        jSpinnerPixelWidth.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                jSpinnerPixelWidthStateChanged(evt);
+            }
+        });
+        jPanel1.add(jSpinnerPixelWidth);
+
+        jLabel1.setText("Hauteur");
+        jPanel1.add(jLabel1);
+
+        jSpinnerPixelHeight.setModel(new javax.swing.SpinnerNumberModel(1, 1, null, 1));
+        jSpinnerPixelHeight.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                jSpinnerPixelHeightStateChanged(evt);
+            }
+        });
+        jPanel1.add(jSpinnerPixelHeight);
+
+        jCheckBoxPreview.setText("Aperçu");
+        jCheckBoxPreview.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jCheckBoxPreviewActionPerformed(evt);
+            }
+        });
+        jPanel1.add(jCheckBoxPreview);
+
+        jButton1.setText("Valider");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
+        jPanel1.add(jButton1);
+
+        jCheckBoxAplyAll.setText("Appliquer à tous");
+        jCheckBoxAplyAll.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jCheckBoxAplyAllActionPerformed(evt);
+            }
+        });
+        jPanel1.add(jCheckBoxAplyAll);
+
+        jPanelTools.add(jPanel1);
+
+        jPanel2.setLayout(new java.awt.GridLayout(4, 1));
+
+        jButtonDisplayImg.setText("Copier l'image courante");
+        jButtonDisplayImg.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonDisplayImgActionPerformed(evt);
+            }
+        });
+        jPanel2.add(jButtonDisplayImg);
+
+        jButton2.setText("Trier l'image courante");
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
+        jPanel2.add(jButton2);
+
+        jPanelTools.add(jPanel2);
+
+        jPanel5.setLayout(new java.awt.GridLayout(4, 1));
+
+        jButton3.setText("Mélanger les variables");
+        jButton3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton3ActionPerformed(evt);
+            }
+        });
+        jPanel5.add(jButton3);
+
+        jButton4.setText("Mélanger les clauses");
+        jButton4.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton4ActionPerformed(evt);
+            }
+        });
+        jPanel5.add(jButton4);
+
+        jPanelTools.add(jPanel5);
+
+        getContentPane().add(jPanelTools, java.awt.BorderLayout.EAST);
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(Frame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(Frame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(Frame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(Frame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        if(this.jCheckBoxAplyAll.isSelected()) {
+            updateAllView();
         }
-        //</editor-fold>
+        else {
+            updateSelectedView();
+        }
+        paintView();
+    }//GEN-LAST:event_jButton1ActionPerformed
 
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new Frame().setVisible(true);
+    private void jSpinnerPixelWidthStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_jSpinnerPixelWidthStateChanged
+        if(this.jCheckBoxPreview.isSelected()) {
+            if(this.jCheckBoxAplyAll.isSelected()) {
+                updateAllView();
             }
-        });
-    }
+            else {
+                updateSelectedView();
+            }
+        }
+        paintView();
+    }//GEN-LAST:event_jSpinnerPixelWidthStateChanged
+
+    private void jSpinnerPixelHeightStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_jSpinnerPixelHeightStateChanged
+        if(this.jCheckBoxPreview.isSelected()) {
+            if(this.jCheckBoxAplyAll.isSelected()) {
+                updateAllView();
+            }
+            else {
+                updateSelectedView();
+            }
+        }
+        paintView();
+    }//GEN-LAST:event_jSpinnerPixelHeightStateChanged
+
+    private void jCheckBoxPreviewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBoxPreviewActionPerformed
+        if(this.jCheckBoxPreview.isSelected()) {
+            paintView();
+        }
+        this.jButton1.setEnabled(!this.jCheckBoxPreview.isSelected());
+    }//GEN-LAST:event_jCheckBoxPreviewActionPerformed
+
+    private void jButtonDisplayImgActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonDisplayImgActionPerformed
+        this.displayCurrentImage();
+        paintView();
+    }//GEN-LAST:event_jButtonDisplayImgActionPerformed
+
+    private void jButtonDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonDeleteActionPerformed
+        if(this.jCheckBoxSuppr.isSelected()) {
+            if(this.jComboBox1.getSelectedIndex() != 0) {
+                int i = this.jComboBox1.getSelectedIndex();
+                this.jComboBox1.setSelectedIndex(i-1);
+                this.jPanelView.remove(i);
+                this.jComboBox1.removeItemAt(i);
+                this.imgs.remove(i);
+                this.jButtonDelete.setEnabled(false);
+            }
+            this.jCheckBoxSuppr.setSelected(false);
+        }
+        paintView();
+    }//GEN-LAST:event_jButtonDeleteActionPerformed
+
+    private void jCheckBoxAplyAllActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBoxAplyAllActionPerformed
+        updateAllView();
+    }//GEN-LAST:event_jCheckBoxAplyAllActionPerformed
+
+    private void jComboBox1ItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_jComboBox1ItemStateChanged
+        ImagePanel p = imgs.get(this.jComboBox1.getSelectedIndex());
+        this.jSpinnerPixelWidth.setValue((int)p.getPixelWidth());
+        this.jSpinnerPixelHeight.setValue((int)p.getPixelHeight());
+        jCheckBoxSuppr.setEnabled(jComboBox1.getSelectedIndex() != 0);
+    }//GEN-LAST:event_jComboBox1ItemStateChanged
+
+    private void jCheckBoxSupprActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBoxSupprActionPerformed
+        this.jButtonDelete.setEnabled(jCheckBoxSuppr.isSelected());
+    }//GEN-LAST:event_jCheckBoxSupprActionPerformed
+
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        currentP.setImg(doc.getImage());
+        shuffler.sort();
+        paintView();
+    }//GEN-LAST:event_jButton2ActionPerformed
+
+    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+        currentP.setImg(doc.getImage());
+        shuffler.randomVariables();
+        paintView();
+    }//GEN-LAST:event_jButton3ActionPerformed
+
+    private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
+        currentP.setImg(doc.getImage());
+        shuffler.randomClauses();
+        paintView();
+    }//GEN-LAST:event_jButton4ActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton jButton1;
+    private javax.swing.JButton jButton2;
+    private javax.swing.JButton jButton3;
+    private javax.swing.JButton jButton4;
+    private javax.swing.JButton jButtonDelete;
+    private javax.swing.JButton jButtonDisplayImg;
+    private javax.swing.JCheckBox jCheckBoxAplyAll;
+    private javax.swing.JCheckBox jCheckBoxPreview;
+    private javax.swing.JCheckBox jCheckBoxSuppr;
+    private javax.swing.JComboBox<String> jComboBox1;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel2;
+    private javax.swing.JPanel jPanel3;
+    private javax.swing.JPanel jPanel4;
+    private javax.swing.JPanel jPanel5;
+    private javax.swing.JPanel jPanelTools;
+    private javax.swing.JPanel jPanelView;
+    private javax.swing.JSpinner jSpinnerPixelHeight;
+    private javax.swing.JSpinner jSpinnerPixelWidth;
     // End of variables declaration//GEN-END:variables
 }

@@ -5,30 +5,52 @@
  */
 package view;
 
+import core.RGBImage;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
+import javax.swing.BorderFactory;
+import javax.swing.JLabel;
+import javax.swing.border.TitledBorder;
 
 /**
  *
  * @author Red
  */
 public class ImagePanel extends javax.swing.JPanel {
-
+    
+    private String title;
+    public String getTitle() { return title; }
+    
     private Point offSet;
-    private BufferedImage img;
+    private RGBImage img;
     
-    public ImagePanel(BufferedImage bimg) {
-        initComponents();
-        img = bimg;
-        offSet = new Point(0,0);
-    }
-    
-    public ImagePanel(BufferedImage bimg, int x, int y) {
+    public ImagePanel(String t, RGBImage bimg, int x, int y) {
         initComponents();
         img = bimg;
         offSet = new Point(x,y);
+        title   = t;
+        this.setBorder(BorderFactory.createTitledBorder(title));
     }
+
+    public double getPixelWidth() {
+        return img.getPixelDim().getWidth();
+    }
+    
+    public double getPixelHeight() {
+        return img.getPixelDim().getHeight();
+    }
+    
+    public void recalculate(int pW, int pH) {
+        img = img.clone(pW, pH);
+        repaint();
+    }
+
+    public void setImg(RGBImage img) {
+        this.img = img;
+    }
+    
     /**
      * Surcharge du parent pour afficher une image
      * @param g les paramètres graphiques

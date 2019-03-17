@@ -1,0 +1,1729 @@
+#LyX 2.2 created this file. For more info see http://www.lyx.org/
+\lyxformat 508
+\begin_document
+\begin_header
+\save_transient_properties true
+\origin unavailable
+\textclass article
+\use_default_options true
+\maintain_unincluded_children false
+\language french
+\language_package default
+\inputencoding auto
+\fontencoding global
+\font_roman "default" "default"
+\font_sans "default" "default"
+\font_typewriter "default" "default"
+\font_math "auto" "auto"
+\font_default_family default
+\use_non_tex_fonts false
+\font_sc false
+\font_osf false
+\font_sf_scale 100 100
+\font_tt_scale 100 100
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\paperfontsize default
+\spacing single
+\use_hyperref false
+\papersize default
+\use_geometry false
+\use_package amsmath 1
+\use_package amssymb 1
+\use_package cancel 1
+\use_package esint 1
+\use_package mathdots 1
+\use_package mathtools 1
+\use_package mhchem 1
+\use_package stackrel 1
+\use_package stmaryrd 1
+\use_package undertilde 1
+\cite_engine basic
+\cite_engine_type default
+\biblio_style plain
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\justification true
+\use_refstyle 1
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\paragraph_indentation default
+\quotes_language french
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\end_header
+
+\begin_body
+
+\begin_layout Title
+Rapport du 19/03/2019 
+\begin_inset Newline newline
+\end_inset
+
+Projet tutoré
+\begin_inset Newline newline
+\end_inset
+
+Sujet n°5 :
+\begin_inset Newline newline
+\end_inset
+
+Deep learning au service du raisonnement automatique
+\begin_inset Newline newline
+\end_inset
+
+supervisé par Dr Olivier Bailleux
+\begin_inset Newline newline
+\end_inset
+
+Master Bases de Données et Intelligence Artificielle
+\begin_inset Newline newline
+\end_inset
+
+2018-2019
+\end_layout
+
+\begin_layout Author
+Julien HALLE
+\end_layout
+
+\begin_layout Standard
+\begin_inset Newpage pagebreak
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset CommandInset toc
+LatexCommand tableofcontents
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Newpage pagebreak
+\end_inset
+
+
+\end_layout
+
+\begin_layout Part
+Définition du sujet
+\end_layout
+
+\begin_layout Section
+Deep learning au service du raisonnement automatique
+\end_layout
+
+\begin_layout Quotation
+Déterminer si une formule : logique sous forme normale conjonctive est cohérente
+ (peut prendre la valeur vrai) est un problème central en raisonnement automatiq
+ue.
+ 
+\end_layout
+
+\begin_layout Quotation
+Ce problème est appelé SAT.
+ Pour les petites formules, comme par exemple (a ou b) et (a ou non b) et
+ (non a ou b), cela ne présente pas de difficulté particulière, mais avec
+ des formules comportant des centaines ou milliers de variables, c’est un
+ véritable challenge.
+\end_layout
+
+\begin_layout Quotation
+L’idée à la base de ce projet est de représenter une formule CNF comme une
+ sorte d’image : chaque variable correspond à une ligne, et chaque clause
+ (comme (a ou b), (non a ou b), …) à une colonne.
+ A l’intersection d’une ligne désignant une variable v et d’une colonne
+ désignant une clause q, on a un point rouge si v appartient à q, un point
+ bleu si non v appartient à q, sinon un point noir.
+ 
+\end_layout
+
+\begin_layout Quotation
+La question est la suivante : après un apprentissage basé sur un très grand
+ nombre de formules, un réseau de neurones est-il capable de reconnaître,
+ d’après l’image d’une formule, si cette formule est cohérente, et dans
+ le cas contraire de déterminer si son incohérence est difficile ou facile
+ à établir.
+ 
+\end_layout
+
+\begin_layout Quote
+Extrait sujet n°5 : DL au service du raisonnement automatique
+\begin_inset Newpage pagebreak
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Un problème ouvert
+\end_layout
+
+\begin_layout Standard
+Le problème SAT est un problème de décision très important en théorie de
+ complexité, il est à la base de la théorie de la complétude NP-complétude
+ et du problème P = NP.
+ Il existe de nombreuses applications notamment en satisfaction de contraintes,
+ model checking, diagnostic, configuration d'un PC ou de son système d'exploitat
+ion.
+ Dans tous ces domaines on se rapporte à des formules propositionnelles
+ et on utilise alors un solveur SAT.
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset External
+	template RasterImage
+	filename Sudoku_Repeto.png
+	lyxscale 25
+	scale 25
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\align center
+figure 1 : Le sodoku peut être représenté sous forme de logique propositionnelle
+ et être résolue.
+\end_layout
+
+\begin_layout Standard
+M.
+ Bailleux s'est alors demandé s'il était possible de résoudre avec du Machine
+ Learning une formule logique propositionnelle.
+ Il a alors proposé de transcrire une formule logique en un image, cependant
+ un problème majeur se pose : 
+\end_layout
+
+\begin_layout Standard
+Si l'information contenu dans une image ne change pas après inversion d'une
+ ligne ou d'une colonne, il n'est pas possible d'appliquer un algorithme
+ de détection dans une image.
+\end_layout
+
+\begin_layout Standard
+Le but de ce projet est de trouver comment faire ressortir des formes afin
+ de pouvoir appliquer un algorithme de machine learning (exemple : réseau
+ de neurone à convolution).
+\begin_inset Newpage pagebreak
+\end_inset
+
+
+\end_layout
+
+\begin_layout Part
+Modélisation du problème
+\end_layout
+
+\begin_layout Section
+Rappel sur les formules logique propositionnelle
+\end_layout
+
+\begin_layout Standard
+Une formule utilise des variables et des opérateurs logiques.
+\end_layout
+
+\begin_layout Subsection
+Etats
+\end_layout
+
+\begin_layout Standard
+Une variable possède deux états logique :
+\end_layout
+
+\begin_layout Itemize
+L'état vrai.
+\end_layout
+
+\begin_layout Itemize
+L'état faux.
+\end_layout
+
+\begin_layout Subsection
+Opérateurs
+\end_layout
+
+\begin_layout Standard
+Il existe trois opérateurs logique qui sont commutatif :
+\end_layout
+
+\begin_layout Itemize
+L'opérateur NON logique représenté par le symbole 
+\begin_inset Formula $\lnot$
+\end_inset
+
+.
+ L'état de la variable est inversé, une variable vrai deviendra fausse et
+ inversement.
+ exemple : 
+\begin_inset Formula $vrai=\lnot faux$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+L'opérateur ET logique représenté par le symbole 
+\begin_inset Formula $\wedge$
+\end_inset
+
+.
+ On dit que l'opération est une conjonction.
+ exemple : 
+\begin_inset Formula $a\wedge\lnot b$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+L'opérateur OU logique représenté par le symbole 
+\begin_inset Formula $\lor$
+\end_inset
+
+.
+ On dit que l'opération est une disjonction.
+ exemple : 
+\begin_inset Formula $a\lor\lnot b$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Evaluation
+\end_layout
+
+\begin_layout Standard
+La résolution d'une telle opération donne deux états :
+\end_layout
+
+\begin_layout Itemize
+L'état vrai.
+ On dit que la formule est satifiable.
+\end_layout
+
+\begin_layout Itemize
+L'état faux.
+ On dit que la formule est insatifiable.
+\end_layout
+
+\begin_layout Standard
+On dit que la formule est cohérente s'il est possible de satifaire la formule
+ au moins une fois.
+\end_layout
+
+\begin_layout Subsection
+Forme normale conjonctive
+\end_layout
+
+\begin_layout Standard
+Toute proposition logique peut être représenté sous 
+\begin_inset Quotes fld
+\end_inset
+
+forme normale conjonctive
+\begin_inset Quotes frd
+\end_inset
+
+ appelé aussi 
+\begin_inset Quotes fld
+\end_inset
+
+CNF (Conjunctive Normal Form)
+\begin_inset Quotes frd
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Standard
+La formule est alors une conjonction de sous-formule disjonctive.
+ Les formules sont aussi appelées 
+\begin_inset Quotes fld
+\end_inset
+
+clauses
+\begin_inset Quotes frd
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+exemple :
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $F=q1$
+\end_inset
+
+
+\begin_inset Formula $\land$
+\end_inset
+
+
+\begin_inset Formula $q2$
+\end_inset
+
+ 
+\end_layout
+
+\begin_layout Standard
+où 
+\begin_inset Formula $q1=\left(a\lor\lnot c\right)$
+\end_inset
+
+ et 
+\begin_inset Formula $q2=\left(\lnot a\lor b\lor c\right)$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+donc : 
+\begin_inset Formula $F=\left(a\lor\lnot c\right)$
+\end_inset
+
+
+\begin_inset Formula $\land$
+\end_inset
+
+
+\begin_inset Formula $\left(\lnot a\lor b\lor c\right)$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Difficulté de résolution
+\end_layout
+
+\begin_layout Standard
+Certains formules propositionnelles sont situés dans P et d'autre dans NP-comple
+t.
+\end_layout
+
+\begin_layout Standard
+Une formule normale conjonctive comportant au plus deux variables par clauses
+ est appelé 2-SAT et peut être résolu par temps polynomial.
+ Tandis qu'une formule comportant au plus trois littéraux (3-SAT) est NP-complet.
+\end_layout
+
+\begin_layout Standard
+Aussi étant donné que l'on peut rapporter tout problème à une formule propositio
+nnelle, on peut représenter par exemple un problème NP-complet tel que le
+ voyageur de commerce (visiter un pays en passant par toutes les villes
+ une seule fois et terminer par sa ville de départ en prenant le chemin
+ le plus court).
+\end_layout
+
+\begin_layout Section
+Structure de donnée
+\end_layout
+
+\begin_layout Standard
+De part sa popularité, les problèmes SAT ont un format qui leur est propre,
+ l'extension .cnf.
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset External
+	template RasterImage
+	filename rendu_test_cnf2.png
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\align center
+figure 1 : contenu du fichier test.cnf
+\end_layout
+
+\begin_layout Standard
+Les normes de ce format sont :
+\end_layout
+
+\begin_layout Itemize
+Tout contenu est espacé par un simple caractère 
+\begin_inset Quotes fld
+\end_inset
+
+espace
+\begin_inset Quotes frd
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Itemize
+Une ligne qui commence par le caractère 
+\begin_inset Quotes fld
+\end_inset
+
+c
+\begin_inset Quotes frd
+\end_inset
+
+ est une 
+\emph on
+ligne de commentaire
+\emph default
+.
+\end_layout
+
+\begin_layout Itemize
+Une ligne qui commence par le caractère 
+\begin_inset Quotes fld
+\end_inset
+
+p
+\begin_inset Quotes frd
+\end_inset
+
+ est une 
+\emph on
+ligne de description
+\emph default
+ suivi du 
+\emph on
+type de représentation
+\emph default
+ (figure 1 : 
+\begin_inset Quotes fld
+\end_inset
+
+cnf
+\begin_inset Quotes frd
+\end_inset
+
+), du 
+\emph on
+nombre de variables
+\emph default
+ (figure 1 : 
+\begin_inset Quotes fld
+\end_inset
+
+3
+\begin_inset Quotes frd
+\end_inset
+
+) et pour finir du 
+\emph on
+nombre de clauses
+\emph default
+ (figure 1 : 
+\begin_inset Quotes fld
+\end_inset
+
+2
+\begin_inset Quotes frd
+\end_inset
+
+).
+\end_layout
+
+\begin_layout Itemize
+Une ligne qui commence par un chiffre se termine par un zéro.
+ Elle décrit une clause disjonctive où chaque chiffre correspond à une variable.
+ Un chiffre négatif indique la négation de la variable.
+\end_layout
+
+\begin_layout Standard
+La formule décrite dans le fichier (figure 1) comporte deux lignes de clauses
+ disjonctive :
+\end_layout
+
+\begin_layout Itemize
+Ligne 4 : (1 -3 0) donc 
+\begin_inset Formula $q1=\left(a\lor\lnot c\right)$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+Ligne 5 : (2 3 -1 0) donc 
+\begin_inset Formula $q2=\left(b\lor c\lor\lnot a\right)=\left(\lnot a\lor b\lor c\right)$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Le fichier décrit alors la formule suivante 
+\begin_inset Formula $F=q1\land q2=\left(a\lor\lnot c\right)$
+\end_inset
+
+
+\begin_inset Formula $\land$
+\end_inset
+
+
+\begin_inset Formula $\left(\lnot a\lor b\lor c\right)$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Section
+Visualisation de l'image représentative
+\end_layout
+
+\begin_layout Standard
+Une formule logique peut être représentée sous la forme d'une image avec
+ pour convention la couleur des intersections : 
+\end_layout
+
+\begin_layout Itemize
+Case rouge : variable positive.
+\end_layout
+
+\begin_layout Itemize
+Case bleue : variable négative.
+\end_layout
+
+\begin_layout Itemize
+Case noire : variable non utilisée.
+\end_layout
+
+\begin_layout Standard
+La couleur noire qui est la valeur par défaut d'une image représente la
+ valeur zéro dans la matrice de l'image.
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset External
+	template RasterImage
+	filename rendu_test_cnf_o.png
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\align center
+figure 2 : représentation du contenu du fichier test.cnf (figure 1)
+\end_layout
+
+\begin_layout Standard
+Il existe trois problèmes majeurs lié à la commutativité des opérateurs
+ :
+\end_layout
+
+\begin_layout Itemize
+Opérateur OU : L'ordre des lignes n'a pas de conséquence dans la résolution
+ de la formule.
+\end_layout
+
+\begin_layout Itemize
+Opérateur ET : L'ordre des colonnes n'a pas de conséquence dans la résolution
+ de la formule.
+\end_layout
+
+\begin_layout Itemize
+Opérateur NON : L'inversion des couleurs sur une ligne n'a pas de conséquence
+ dans la résolution de la formule.
+\end_layout
+
+\begin_layout Standard
+Il existe donc une multitude de représentation pour une même formule.
+\begin_inset Newpage pagebreak
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset External
+	template RasterImage
+	filename rendu_test_cnf.png
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\align center
+figure 3 : Exemples de générations d'une même formule logique.
+\end_layout
+
+\begin_layout Standard
+On voit sur la figure 3, la génération d'une même formule qui est 
+\begin_inset Formula $f=\left(a\lor\lnot c\right)$
+\end_inset
+
+
+\begin_inset Formula $\land$
+\end_inset
+
+
+\begin_inset Formula $\left(\lnot a\lor b\lor c\right)$
+\end_inset
+
+ avec respectivement 
+\begin_inset Formula $q1=\left(a\lor\lnot c\right)$
+\end_inset
+
+ et 
+\begin_inset Formula $q2=\left(\lnot a\lor b\lor c\right)$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+La première image est la représentation sans inversion.
+\end_layout
+
+\begin_layout Itemize
+Dans la deuxième image, l'ordre des variables a et b a été inversé par rapport
+ à l'image précédente.
+\end_layout
+
+\begin_layout Itemize
+Dans la troisième image, l'ordre des clauses a été inversé par rapport à
+ l'image précédente.
+\end_layout
+
+\begin_layout Itemize
+Dans quatrième image, l'ordre des variables a et b a été inversé par rapport
+ à l'image précédente.
+\end_layout
+
+\begin_layout Standard
+Cependant on sait que s'il existe un chemin qui traverse l'image de gauche
+ à droite la formule est satisfiable.
+\begin_inset Newpage pagebreak
+\end_inset
+
+
+\end_layout
+
+\begin_layout Part
+Proposition
+\end_layout
+
+\begin_layout Standard
+Pour pouvoir trouver des formes exploitable, il faut définir des critères
+ qui seront toujours les même malgré la disposition des lignes, colonnes
+ ou signes dans une image.
+\end_layout
+
+\begin_layout Section
+Présentation d'un système de score
+\end_layout
+
+\begin_layout Standard
+Cette proposition fonctionne avec une attribution d'un score par clauses
+ par variables.
+ Ces valeurs rangées par valeurs croissantes définissent l'ordre définitif.
+\end_layout
+
+\begin_layout Itemize
+Sur chaque ligne, on optimise le nombre de variable positives.
+\end_layout
+
+\begin_layout Itemize
+Un score pour une variable v pour une clause q est calculé de la facon suivante
+ :
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+Si la variable donné v est positive : on incrémente le score par le nombre
+ de variables positive qui succède v jusqu'à trouver une variable négative
+ ou inutilisé par la clause q courante plus un.
+\end_layout
+
+\begin_layout Itemize
+Sinon le score vaut 0.
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+Pour chaque variable on range par ordre croissant les scores obtenu pour
+ chaque clauses.
+\end_layout
+
+\begin_layout Itemize
+Pour chaque variable on sélectionne chaque clause rangé dans l'ordre croissant
+ en omettant les scores de zéro.
+ Une clause déjà sélectionné ne peut pas être utilisé plusieurs fois.
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset External
+	template RasterImage
+	filename rendu_test2.png
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\align center
+figure 4 : représentation du fichier test2.cnf
+\begin_inset Newpage pagebreak
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Après inversion des couleurs sur certaines lignes on obtient un plus grand
+ nombre de variable positives :
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset External
+	template RasterImage
+	filename rendu_test2_opti.png
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\align center
+figure 5 : représentation du fichier test2.cnf après inversion des signes
+ sur certaines lignes
+\end_layout
+
+\begin_layout Standard
+Pour la figure 4, on peut établir le tableau de mesure suivante :
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset Tabular
+<lyxtabular version="3" rows="5" columns="4">
+<features tabularvalignment="middle">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+a
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+b
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+c
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+q1
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+2
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+1
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+q2
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+1
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+q3
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+2
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+1
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+q4
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+2
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+1
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\align left
+Après rangement par ordre croissant :
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset Tabular
+<lyxtabular version="3" rows="5" columns="3">
+<features tabularvalignment="middle">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+a
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+b
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+c
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+q2
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+q3
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+q1
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+q3
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+q1
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+q4
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+q4
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+On obtient l'ordre suivant : q2, q3, q1, q4
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset External
+	template RasterImage
+	filename rendu_test2_sorted.png
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\align center
+figure 6 : représentation du fichier test2.cnf trié
+\end_layout
+
+\begin_layout Section
+Evaluation du mélange d'une image
+\end_layout
+
+\begin_layout Standard
+Afin de déterminé si l'échange a été utile, il faut pouvoir quantifier un
+ score de rangement de l'image.
+ On cherche à mesure la densité de variables positives.
+\end_layout
+
+\begin_layout Standard
+On défini la mesure suivante :
+\end_layout
+
+\begin_layout Itemize
+Chaque variable positive a un score qui s'incrémente pour chacun de ses
+ voisins direct (8-voisins) qui est lui même une variable positive.
+\end_layout
+
+\begin_layout Itemize
+La mesure de l'image vaut alors la somme de tous ces scores.
+\end_layout
+
+\begin_layout Standard
+Plus la mesure est grande meilleur est le rangement.
+\end_layout
+
+\begin_layout Standard
+Voici un tableau récapitulatif de chaque mesure pour chaque état du tri
+ :
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Tabular
+<lyxtabular version="3" rows="4" columns="3">
+<features tabularvalignment="middle">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Etape
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Mesure
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Image
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Lecture
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+16
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset External
+	template RasterImage
+	filename rendu_test2.png
+	lyxscale 80
+	scale 80
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Optimisation des variables positives
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+18
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset External
+	template RasterImage
+	filename rendu_test2_opti.png
+	lyxscale 80
+	scale 80
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Rangement de l'image
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+24
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset External
+	template RasterImage
+	filename rendu_test2_sorted.png
+	lyxscale 80
+	scale 80
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Autre exemples
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset Tabular
+<lyxtabular version="3" rows="2" columns="2">
+<features tabularvalignment="middle">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Originale (92)
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Rangé (230)
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset External
+	template RasterImage
+	filename f0.png
+	lyxscale 50
+	scale 50
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset External
+	template RasterImage
+	filename f0_sorted.png
+	lyxscale 50
+	scale 50
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset Tabular
+<lyxtabular version="3" rows="2" columns="2">
+<features tabularvalignment="middle">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Originale (492)
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Rangé (520)
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset External
+	template RasterImage
+	filename f3.png
+	lyxscale 70
+	scale 70
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset External
+	template RasterImage
+	filename f3_sorted.png
+	lyxscale 70
+	scale 70
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Newpage pagebreak
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Amélioration envisageable
+\end_layout
+
+\begin_layout Standard
+Le rangement actuel ne prend pas en compte l'ordre des variables, effectivemment
+ quand on échange des variables (lignes) et que l'on tri les résultats divergent.
+\end_layout
+
+\begin_layout Standard
+Pour une même image on obtient, différentes variantes d'images.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Tabular
+<lyxtabular version="3" rows="2" columns="2">
+<features tabularvalignment="middle">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Rangé 1 (24)
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Rangé 2 (14)
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset External
+	template RasterImage
+	filename rendu_test2_sorted.png
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset External
+	template RasterImage
+	filename test2_sorted2.png
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Newpage pagebreak
+\end_inset
+
+
+\end_layout
+
+\begin_layout Part
+Conclusion
+\end_layout
+
+\begin_layout Standard
+La difficulté principal de ce sujet réside dans le fait qu'il n'y ait pas
+ d'information sur laquelle se rapporter.
+ La formule permettant de ranger une image par score a été trouvé de façon
+ empirique en partant d'un exemple simple.
+\end_layout
+
+\begin_layout Part
+Sources
+\end_layout
+
+\begin_layout Standard
+Wikipédia : 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Flex URL
+status open
+
+\begin_layout Plain Layout
+
+https://fr.wikipedia.org/wiki/Probl%C3%A8me_SAT
+\end_layout
+
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Le fichier .cnf : 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Flex URL
+status open
+
+\begin_layout Plain Layout
+
+https://people.sc.fsu.edu/~jburkardt/data/cnf/cnf.html
+\end_layout
+
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Traduction de l’article original de Brandon Rohrer (Senior Data Scientist
+ chez Facebook), “How Convolutional Neural Networks Work” : 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Flex URL
+status open
+
+\begin_layout Plain Layout
+
+https://medium.com/@CharlesCrouspeyre/comment-les-r%C3%A9seaux-de-neurones-%C3%A0
+-convolution-fonctionnent-b288519dbcf8
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_body
+\end_document

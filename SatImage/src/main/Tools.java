@@ -18,6 +18,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Map;
 import java.util.Map.Entry;
 import javax.imageio.ImageIO;
 
@@ -165,15 +166,28 @@ public class Tools {
     
     public int getRandom(int min, int max)
     {
-        return (int)(Math.random()*(max-min)+min);
+        return (int)(Math.random()*(max+1-min)+min);
     }
     
-    public List<Entry<Integer, Integer>> sortByValue(HashMap<Integer, Integer> map)
+    public static <K, V extends Comparable<? super V>> LinkedHashMap<K,V> sortByValue(Map<K, V> map)
     {
-        HashMap<Integer, Integer> out = new LinkedHashMap<>();
-        List<Entry<Integer, Integer>> sortList = new ArrayList<>(map.entrySet());
-        sortList.sort(Entry.comparingByValue());
-        
-        return sortList;
+        List<Entry<K, V>> list = new ArrayList<>(map.entrySet());
+        list.sort(Entry.comparingByValue());
+
+        LinkedHashMap<K, V> result = new LinkedHashMap<>();
+        for (Entry<K, V> entry : list)
+        {
+            result.put(entry.getKey(), entry.getValue());
+        }
+
+        return result;
+    }
+    
+    public static <K, V> void printMap(Map<K, V> map)
+    {
+        for (K key : map.keySet())
+        {
+            System.out.println("["+key+"]="+map.get(key));
+        }
     }
 }

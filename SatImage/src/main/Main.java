@@ -34,40 +34,33 @@ public class Main {
         CNFDocument f2   = new CNFDocument(pathCNF, "f2-peebOr+rand");
         CNFDocument f3   = new CNFDocument(pathCNF, "f3-peebXor_rand");
         //---------------------------
-        CNFDocument doc = f0;
+        CNFDocument doc = f1;
         doc.load();
         //doc.print();
-        doc.setPixelDimension(2, 16);
-        Shuffler shuffler = new Shuffler(doc);
+        doc.setPixelDimension(32, 32);
+        Shuffler sh = new Shuffler(doc);
         //---------------------------
-        Frame frame = new Frame(doc, shuffler);
-        //---------------------------
-        //showImage(doc);
+        Frame frame = new Frame(doc, sh);
+        run(frame);
+        //debug(doc, sh);
+    }
+    
+    public static void debug(CNFDocument doc, Shuffler sh)
+    {
+        sh.print();
         /*
-        shuffler.sort();
-        RGBImage img1 = cloneImage(doc);
-        showImage(doc);
+        sh.sort();sh.print();
         
-        shuffler.randomVariables();
-        //showImage(doc);
+        sh.sortByNeighbour();sh.print();
         
-        shuffler.sort();
-        RGBImage img2 = cloneImage(doc);
-        showImage(doc);
-        
-        if(img1.equals(img2))
-        {
-            System.out.println("Image identique!");
-        }
-        else
-        {
-            System.out.println("Image différente!");
-        }
-        */
-        //----------------------------
+        sh.sort();sh.print();*/
+        //System.out.println("Difficulté : "+sh.countNeighbour());
+    }
+    
+    public static void run(Frame frame)
+    {
         frame.setSize(200,400);
         frame.setVisible(true);
-        //exit(0);
     }
     
     public static String getAbsolutePath()

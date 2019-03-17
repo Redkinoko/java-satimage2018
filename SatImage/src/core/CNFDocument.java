@@ -5,14 +5,15 @@
  */
 package core;
 
-import main.Tools;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeMap;
+import main.Tools;
 
 /**
  *
@@ -25,19 +26,25 @@ public class CNFDocument extends Document {
     public final static String DESC_PROBLEM = "p";
     public final static String DESC_TYPE    = "cnf";
     
+    private final static Color COLOR_POSITIVE  = Color.RED;
+    private final static Color COLOR_NEGATIVE  = Color.BLUE;
+    private final static Color COLOR_UNDEFINED = Color.BLACK;
+    
+    public final static int POSITIVE    = 1;
+    public final static int NEGATIVE    = -1;
+    public final static int UNDEFINED   = 0;
+    
     private int nVariables;
     private int nClauses;
   
-    private Color positiveColor;
-    private Color negativeColor;
-    private Color backgroundColor;
     /**
      * Une ligne par clauses
      */
-    private List<List<Integer>> clauses;
+    private LinkedList<LinkedList<Integer>> clauses;
     /**
      * key   = index de la clause dans la liste des clauses
      * value = colonne d'affichage
+     * /!\Changer uniquement la key pour modifier l'affichage
      */
     private TreeMap<Integer, Integer> clauseOrder;
     /**
@@ -45,12 +52,6 @@ public class CNFDocument extends Document {
      * value = ligne d'affichage
      */
     private TreeMap<Integer, Integer> varOrder;
-    
-    /**
-     * key = valeur (-1,1,...) de la variable lue
-     * value = nombre de clauses po
-     */
-    private HashMap<Integer, Integer> countVar;
     
     private Dimension pixelDim;
     private RGBImage image;
@@ -69,9 +70,6 @@ public class CNFDocument extends Document {
         varOrder        = null;
         nVariables     = 0;
         nClauses       = 0;
-        positiveColor   = null;
-        negativeColor   = null;
-        backgroundColor = null;
         image           = null;
         pixelDim       = null;
     }
@@ -80,13 +78,9 @@ public class CNFDocument extends Document {
     public void init()
     {
         super.init();
-        clauses         = new ArrayList<>();
+        clauses         = new LinkedList<>();
         clauseOrder     = new TreeMap<>();
         varOrder        = new TreeMap<>();
-        countVar        = new HashMap<>();
-        positiveColor   = Color.BLUE;
-        negativeColor   = Color.RED;
-        backgroundColor = Color.BLACK;
         pixelDim        = new Dimension(1,1);
     }
     
@@ -148,7 +142,7 @@ public class CNFDocument extends Document {
         int length = line.length-1;
         if(line[length].equals("0"))
         {
-            List<Integer> c = new ArrayList();
+            LinkedList<Integer> c = new LinkedList();
             int key, order;
             for(int i=0 ; i<length ; i++)
             {
@@ -156,15 +150,6 @@ public class CNFDocument extends Document {
                 order = Math.abs(key)-1;
                 varOrder.put(key, order);
                 c.add(key);
-                if(countVar.containsKey(key))
-                {
-                    int v = countVar.get(key);
-                    countVar.put(key, v+1);
-                }
-                else
-                {
-                    countVar.put(key, 1);
-                }
             }
             clauseOrder.put(clauseOrder.size(), clauseOrder.size());
             clauses.add(c);
@@ -173,7 +158,7 @@ public class CNFDocument extends Document {
     
     private Color getColor(int value)
     {
-        return (value>0)?positiveColor:negativeColor;
+        return (value>0)?COLOR_POSITIVE:COLOR_NEGATIVE;
     }
     
     private void draw(int v, int x, int y)
@@ -183,7 +168,7 @@ public class CNFDocument extends Document {
     
     private void clean(int x, int y)
     {
-        image.draw(backgroundColor, x,y);
+        image.draw(COLOR_UNDEFINED, x,y);
     }
     
     /**
@@ -261,13 +246,18 @@ public class CNFDocument extends Document {
         return image;
     }
     
+    public void recalculateImage()
+    {
+        createImage();
+    }
+    
     /**
      * Si une image représentative existe
      * les clauses à echanger sont effacé puis inversé puis enfin redessiné
      * @param c1 la clause à echanger avec c2
      * @param c2 la clause à echanger avec c1
      */
-    public void invertClauses(int c1, int c2)
+    private void invertClauses(int c1, int c2)
     {
         c1--;
         c2--;
@@ -359,7 +349,7 @@ public class CNFDocument extends Document {
         }
     }
     
-    public void invertVariables(int v1, int v2)
+    private void invertVariables(int v1, int v2)
     {
         if(varOrder != null && v1 != v2 && varOrder.containsKey(v1) && varOrder.containsKey(v2))
         {
@@ -400,9 +390,17 @@ public class CNFDocument extends Document {
                     }
                 }
             }
-            Integer pos = this.getCountVar().get(line);
-            this.getCountVar().put(line, this.getCountVar().get(-line));
-            this.getCountVar().put(-line, pos);
+            
+            //S'il n'y a pas de variable négative
+            if(varOrder.get(-line) == null)
+            {
+                varOrder.put(-line, varOrder.get(line));
+            }//S'il n'y a pas de variable positive
+            else if (varOrder.get(line) == null)
+            {
+                varOrder.put(line, varOrder.get(line));
+            }
+            
             if(image != null)
             {
                 drawVariable(line);
@@ -452,80 +450,128 @@ public class CNFDocument extends Document {
         return nVariables;
     }
 
-    public void setnVariables(int nVariables) {
-        this.nVariables = nVariables;
-    }
-
     public int getnClauses() {
         return nClauses;
     }
 
-    public void setnClauses(int nClauses) {
-        this.nClauses = nClauses;
-    }
-
     public Color getPositiveColor() {
-        return positiveColor;
-    }
-
-    public void setPositiveColor(Color positiveColor) {
-        this.positiveColor = positiveColor;
+        return COLOR_POSITIVE;
     }
 
     public Color getNegativeColor() {
-        return negativeColor;
-    }
-
-    public void setNegativeColor(Color negativeColor) {
-        this.negativeColor = negativeColor;
+        return COLOR_NEGATIVE;
     }
 
     public Color getBackgroundColor() {
-        return backgroundColor;
+        return COLOR_UNDEFINED;
     }
 
-    public void setBackgroundColor(Color backgroundColor) {
-        this.backgroundColor = backgroundColor;
-    }
-
-    public List<List<Integer>> getClauses() {
+    public LinkedList<LinkedList<Integer>> getClauses() {
         return clauses;
-    }
-
-    public void setClauses(List<List<Integer>> clauses) {
-        this.clauses = clauses;
     }
 
     public TreeMap<Integer, Integer> getClauseOrder() {
         return clauseOrder;
     }
 
-    public void setClauseOrder(TreeMap<Integer, Integer> clauseOrder) {
-        this.clauseOrder = clauseOrder;
-    }
-
     public TreeMap<Integer, Integer> getVarOrder() {
         return varOrder;
-    }
-
-    public void setVarOrder(TreeMap<Integer, Integer> varOrder) {
-        this.varOrder = varOrder;
     }
 
     public Dimension getPixelDim() {
         return pixelDim;
     }
-
-    public void setPixelDim(Dimension pixelDim) {
-        this.pixelDim = pixelDim;
+    
+    public void setClausesOrder(int key, int value)
+    {
+        int oldValue = clauseOrder.get(key);
+        int oldKey   = 0; 
+        for(int i:clauseOrder.keySet())
+        {
+            if(clauseOrder.get(i).equals(value))
+            {
+                oldKey = i;
+            }
+        }
+        this.clauseOrder.put(key, value);
+        this.clauseOrder.put(oldKey, oldValue);
     }
-
-    public HashMap<Integer, Integer> getCountVar() {
-        return countVar;
+    
+    public void invertLines(int line1, int line2)
+    {
+        this.invertVariables(line1, line2);
     }
+    
+    public void invertColumns(int col1, int col2)
+    {
+        this.invertClauses(col1, col2);
+    }
+    
+    public void saveCurrentDocument()
+    {
+        int[][] matrix = getMatrix();
+        clauseOrder.clear();
+        varOrder.clear();
+        LinkedList<LinkedList<Integer>> cls = new LinkedList<>();
+        for(int x=0 ; x<matrix.length ; x++)
+        {
+            LinkedList<Integer> c = new LinkedList();
+            for(int y=0 ; y<matrix[0].length ; y++)
+            {
+                switch(matrix[x][y])
+                {
+                    case -1:
+                        c.add(-(y+1));
+                        break;
+                    case 1:
+                        c.add((y+1));
+                        break;
+                }
+            }
+            cls.add(c);
+        }
+        for(int i=0 ; i<this.nClauses ; i++)
+        {
+            clauseOrder.put(i, i);
+        }
+        for(int i=0 ; i<this.nVariables ; i++)
+        {
+            varOrder.put((i+1), i);
+            varOrder.put(-(i+1), i);
+        }
+        clauses = cls;
+    }
+    
+    public int[][] getMatrix()
+    {
+        int[][] matrix = new int[nClauses][nVariables];
+        for(int i=0 ; i<matrix.length ; i++)
+        {
+            for(int j=0 ; j<matrix[i].length ; j++)
+            {
+                matrix[i][j] = 0;
+            }
+        }
 
-    public void setCountVar(HashMap<Integer, Integer> countVar) {
-        this.countVar = countVar;
+        for(int i=0 ; i<clauses.size() ; i++)
+        {
+            for(int j=0 ; j<clauses.get(i).size() ; j++)
+            {
+                int v = clauses.get(i).get(j);
+                Color c  = getColor(v);
+                int k = 0;
+                if(c == this.COLOR_POSITIVE)
+                {
+                    k = 1;
+                }
+                else if(c == this.COLOR_NEGATIVE)
+                {
+                    k = -1;
+                }
+                matrix[clauseOrder.get(i)][varOrder.get(v)] = k;
+            }
+        }
+        return matrix;
     }
     
     

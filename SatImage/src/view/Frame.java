@@ -29,7 +29,8 @@ public class Frame extends javax.swing.JFrame {
     private ImagePanel currentP;
     private List<ImagePanel> imgs;
     private Dimension pixelDim;
-            
+    private int bestScore = 0;
+    
     public Frame(CNFDocument d, Shuffler s) {
         initComponents();
         doc      = d;
@@ -104,8 +105,11 @@ public class Frame extends javax.swing.JFrame {
         jButton1 = new javax.swing.JButton();
         jCheckBoxAplyAll = new javax.swing.JCheckBox();
         jPanel2 = new javax.swing.JPanel();
+        jPanel6 = new javax.swing.JPanel();
         jButtonDisplayImg = new javax.swing.JButton();
         jButton2 = new javax.swing.JButton();
+        jButtonPattern = new javax.swing.JButton();
+        jButton5 = new javax.swing.JButton();
         jPanel5 = new javax.swing.JPanel();
         jButton3 = new javax.swing.JButton();
         jButton4 = new javax.swing.JButton();
@@ -205,24 +209,45 @@ public class Frame extends javax.swing.JFrame {
 
         jPanel2.setLayout(new java.awt.GridLayout(4, 1));
 
+        jPanel6.setLayout(new java.awt.GridLayout(1, 2));
+
         jButtonDisplayImg.setText("Copier l'image courante");
         jButtonDisplayImg.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButtonDisplayImgActionPerformed(evt);
             }
         });
-        jPanel2.add(jButtonDisplayImg);
+        jPanel6.add(jButtonDisplayImg);
 
-        jButton2.setText("Trier l'image courante");
+        jButton2.setText("Optimiser les var positives");
         jButton2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton2ActionPerformed(evt);
             }
         });
-        jPanel2.add(jButton2);
+        jPanel6.add(jButton2);
+
+        jPanel2.add(jPanel6);
+
+        jButtonPattern.setText("Trier par pattern");
+        jButtonPattern.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonPatternActionPerformed(evt);
+            }
+        });
+        jPanel2.add(jButtonPattern);
+
+        jButton5.setText("Mesurer le mélange");
+        jButton5.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton5ActionPerformed(evt);
+            }
+        });
+        jPanel2.add(jButton5);
 
         jPanelTools.add(jPanel2);
 
+        jPanel5.setBorder(javax.swing.BorderFactory.createTitledBorder("Mélange"));
         jPanel5.setLayout(new java.awt.GridLayout(4, 1));
 
         jButton3.setText("Mélanger les variables");
@@ -291,6 +316,9 @@ public class Frame extends javax.swing.JFrame {
 
     private void jButtonDisplayImgActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonDisplayImgActionPerformed
         this.displayCurrentImage();
+        if(this.jCheckBoxAplyAll.isSelected()) {
+            this.updateAllView();
+        }
         paintView();
     }//GEN-LAST:event_jButtonDisplayImgActionPerformed
 
@@ -324,23 +352,62 @@ public class Frame extends javax.swing.JFrame {
         this.jButtonDelete.setEnabled(jCheckBoxSuppr.isSelected());
     }//GEN-LAST:event_jCheckBoxSupprActionPerformed
 
-    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-        currentP.setImg(doc.getImage());
+    private void jButtonPatternActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonPatternActionPerformed
+        this.bestScore = 0;
+        double oldW = currentP.getPixelWidth();
+        double oldH = currentP.getPixelHeight();
+        doc.setPixelDimension((int)oldW, (int)oldH);
         shuffler.sort();
-        paintView();
-    }//GEN-LAST:event_jButton2ActionPerformed
+        int i = shuffler.countNeighbour();
+        if(i > this.bestScore)
+        {
+            this.bestScore = i;
+            doc.saveCurrentDocument();
+            currentP.setImg(doc.getImage());
+            paintView();
+        }
+        this.jButtonPattern.setText("Trier par pattern (meilleur: "+this.bestScore+")(courante : "+i+")");
+    }//GEN-LAST:event_jButtonPatternActionPerformed
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+        this.bestScore = 0;
+        double oldW = currentP.getPixelWidth();
+        double oldH = currentP.getPixelHeight();
+        doc.setPixelDimension((int)oldW, (int)oldH);
+        shuffler.randomLines();
         currentP.setImg(doc.getImage());
-        shuffler.randomVariables();
         paintView();
     }//GEN-LAST:event_jButton3ActionPerformed
 
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
+        this.bestScore = 0;
+        double oldW = currentP.getPixelWidth();
+        double oldH = currentP.getPixelHeight();
+        doc.setPixelDimension((int)oldW, (int)oldH);
+        shuffler.randomColumns();
         currentP.setImg(doc.getImage());
-        shuffler.randomClauses();
         paintView();
     }//GEN-LAST:event_jButton4ActionPerformed
+
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        this.bestScore = 0;
+        double oldW = currentP.getPixelWidth();
+        double oldH = currentP.getPixelHeight();
+        doc.setPixelDimension((int)oldW, (int)oldH);
+        shuffler.optimizePositive();
+        doc.saveCurrentDocument();
+        currentP.setImg(doc.getImage());
+        paintView();
+    }//GEN-LAST:event_jButton2ActionPerformed
+
+    private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
+        int i = shuffler.countNeighbour();
+        if(i > this.bestScore)
+        {
+            this.bestScore = i;
+        }
+        this.jButton5.setText("Mesurer le mélange (meilleur: "+this.bestScore+")(courante : "+i+")");
+    }//GEN-LAST:event_jButton5ActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -348,8 +415,10 @@ public class Frame extends javax.swing.JFrame {
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
     private javax.swing.JButton jButton4;
+    private javax.swing.JButton jButton5;
     private javax.swing.JButton jButtonDelete;
     private javax.swing.JButton jButtonDisplayImg;
+    private javax.swing.JButton jButtonPattern;
     private javax.swing.JCheckBox jCheckBoxAplyAll;
     private javax.swing.JCheckBox jCheckBoxPreview;
     private javax.swing.JCheckBox jCheckBoxSuppr;
@@ -361,6 +430,7 @@ public class Frame extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
     private javax.swing.JPanel jPanel5;
+    private javax.swing.JPanel jPanel6;
     private javax.swing.JPanel jPanelTools;
     private javax.swing.JPanel jPanelView;
     private javax.swing.JSpinner jSpinnerPixelHeight;
